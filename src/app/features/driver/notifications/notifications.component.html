@@ -1,0 +1,75 @@
+<div class="notifications-page">
+  <header class="page-header">
+    <div class="header-content">
+      <h1>Notifications</h1>
+      <p>Stay updated with your bookings and payments</p>
+    </div>
+    <button class="mark-all-btn" (click)="markAllRead()" [disabled]="(notificationService.unreadCount$ | async) === 0">
+      <span class="material-icons">done_all</span>
+      Mark all as read
+    </button>
+  </header>
+
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Type</label>
+      <div class="chips">
+        @for (type of ['ALL', 'BOOKING', 'PAYMENT', 'EXPIRY', 'CHECKIN']; track type) {
+          <button class="chip" 
+                  [class.active]="currentType === type" 
+                  (click)="onTypeChange(type)">
+            {{ type === 'ALL' ? 'All' : (type | titlecase) }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Channel</label>
+      <div class="chips">
+        @for (ch of ['ALL', 'APP', 'EMAIL', 'SMS']; track ch) {
+          <button class="chip" 
+                  [class.active]="currentChannel === ch" 
+                  (click)="onChannelChange(ch)">
+            {{ ch === 'ALL' ? 'All' : (ch === 'APP' ? 'In-App' : (ch | titlecase)) }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="notifications-list">
+    @if (loading$ | async) {
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton-item">
+          <app-skeleton-loader type="avatar"></app-skeleton-loader>
+          <div class="skeleton-text">
+            <app-skeleton-loader type="title" width="40%"></app-skeleton-loader>
+            <app-skeleton-loader type="text" width="90%"></app-skeleton-loader>
+          </div>
+        </div>
+      }
+    } @else {
+      @if ((notifications$ | async); as notifications) {
+        @if (notifications.length === 0) {
+          <div class="empty-state animate-fade-in">
+            <div class="empty-icon-circle">
+              <span class="material-icons">notifications</span>
+            </div>
+            <h2>No notifications found</h2>
+            <p>We'll notify you when something important happens.</p>
+          </div>
+        } @else {
+          @for (n of notifications; track n.notificationId) {
+            <app-notification-card 
+              [notification]="n"
+              (onRead)="markAsRead($any($event))"
+              (onDelete)="deleteNotification($any($event))"
+              class="animate-fade-in">
+            </app-notification-card>
+          }
+        }
+      }
+    }
+  </div>
+</div>

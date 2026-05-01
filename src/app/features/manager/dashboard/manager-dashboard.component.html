@@ -1,0 +1,73 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Operator Dashboard</h1>
+      <p class="subtitle">Overseeing {{ lots.length }} lot{{ lots.length !== 1 ? 's' : '' }}.</p>
+    </div>
+    <a routerLink="/manager/lots" class="btn-primary">
+      <span class="material-icons">apartment</span> Manage lots
+    </a>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-icons">apartment</span></div>
+      <div><div class="stat-val">{{ lots.length }}</div><div class="stat-lab">Lots</div></div>
+    </div>
+    <div class="stat-card accent">
+      <div class="stat-icon"><span class="material-icons">event</span></div>
+      <div><div class="stat-val">{{ activeBookings.length }}</div><div class="stat-lab">Active sessions</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-icons">speed</span></div>
+      <div><div class="stat-val">{{ occupancy }}%</div><div class="stat-lab">Occupancy</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><span class="material-icons">payments</span></div>
+      <div><div class="stat-val">₹{{ revenue.toFixed(0) }}</div><div class="stat-lab">Revenue</div></div>
+    </div>
+  </div>
+
+  <div class="skeleton-stats" *ngIf="loading">
+    <div class="skeleton-card" *ngFor="let _ of [1,2,3,4]"></div>
+  </div>
+
+  <div class="content-grid">
+    <div class="panel">
+      <div class="panel-header">
+        <h2>My lots</h2>
+        <a routerLink="/manager/lots/new" class="view-all">+ Add lot</a>
+      </div>
+      <div class="lot-list" *ngIf="!loading">
+        <a class="lot-row" *ngFor="let l of lots" [routerLink]="['/manager/lots', l.lotId, 'spots']">
+          <div class="lot-row-info">
+            <span class="lot-name">{{ l.name }}</span>
+            <span class="lot-city">{{ l.city }}</span>
+          </div>
+          <div class="lot-row-right">
+            <span class="badge" [class.badge-green]="l.open" [class.badge-gray]="!l.open">
+              {{ l.open ? 'Open' : 'Closed' }}
+            </span>
+            <span class="spots-count">{{ l.availableSpots }}/{{ l.totalSpots }}</span>
+          </div>
+        </a>
+        <div *ngIf="lots.length === 0" class="empty">No lots yet. <a routerLink="/manager/lots/new">Add one</a></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Live bookings</h2>
+        <a routerLink="/manager/bookings" class="view-all">View all</a>
+      </div>
+      <div class="booking-list" *ngIf="!loading">
+        <div class="booking-row" *ngFor="let b of activeBookings.slice(0,6)">
+          <span class="plate">{{ b.vehiclePlate }}</span>
+          <span class="status-badge status-{{ b.status }}">{{ b.status }}</span>
+          <span class="amount">₹{{ b.totalAmount.toFixed(0) }}</span>
+        </div>
+        <div *ngIf="activeBookings.length === 0" class="empty">No active bookings.</div>
+      </div>
+    </div>
+  </div>
+</div>

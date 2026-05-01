@@ -1,0 +1,60 @@
+<div class="auth-layout">
+  <div class="auth-panel hidden-mobile">
+    <div class="auth-brand">
+      <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+    </div>
+    <div class="auth-tagline">
+      <h2>Smart parking, built for the people who use it.</h2>
+      <p>Reserve a spot in seconds, check in digitally, and never circle the block again.</p>
+    </div>
+    <span class="auth-copy">© {{ year }} ParkEase. Find. Reserve. Park.</span>
+  </div>
+
+  <div class="auth-form-area">
+    <div class="auth-form-card">
+      <div class="auth-brand-mobile">
+        <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+      </div>
+      <h1>Sign in</h1>
+      <p class="subtitle">Enter your credentials to access your account.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+        <div class="field">
+          <label>Email</label>
+          <input formControlName="email" type="email" placeholder="you@example.com" autocomplete="email">
+          <span class="err" *ngIf="f['email'].touched && f['email'].errors?.['required']">Email is required</span>
+          <span class="err" *ngIf="f['email'].touched && f['email'].errors?.['email']">Enter a valid email</span>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input formControlName="password" type="password" placeholder="••••••••" autocomplete="current-password">
+          <span class="err" *ngIf="f['password'].touched && f['password'].errors?.['required']">Password is required</span>
+        </div>
+
+        @if (error) { <div class="alert-error">{{ error }}</div> }
+
+        <div class="form-footer-link">
+          <a routerLink="/forgot-password">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          @if (submitting) { <span class="spinner"></span> }
+          {{ submitting ? 'Signing in…' : 'Sign in' }}
+        </button>
+
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+        <button type="button" (click)="loginWithGoogle()" class="btn-google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+          Continue with Google
+        </button>
+      </form>
+
+      <p class="switch-auth">
+        Don't have an account? <a routerLink="/register">Create one</a>
+      </p>
+    </div>
+  </div>
+</div>

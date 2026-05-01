@@ -1,0 +1,9 @@
+.page { max-width: 900px; }
+h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
+.subtitle { color: var(--muted-text); font-size: 0.875rem; margin: 0 0 1.5rem; }
+.reports-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.report-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.report-icon { font-size: 2rem; color: var(--primary); }
+h3 { font-size: 0.95rem; font-weight: 600; margin: 0; }
+p { font-size: 0.82rem; color: var(--muted-text); margin: 0; flex: 1; }
+.btn-outline { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 6px; background: none; font-size: 0.8rem; cursor: not-allowed; color: var(--muted-text); margin-top: 0.5rem; }

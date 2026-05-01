@@ -1,0 +1,124 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="page-subtitle">Real-time overview of ParkEase platform performance and users.</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-primary" (click)="loadData()" [disabled]="loading">
+      <span class="material-icons">refresh</span>
+      Refresh Stats
+    </button>
+  </div>
+</div>
+
+<div class="dashboard-content animate-in">
+  <!-- Primary Stats -->
+  <div class="stats-grid" *ngIf="!loading && stats">
+    <div class="stat-card">
+      <div class="stat-icon icon-blue">
+        <span class="material-icons">group</span>
+      </div>
+      <div class="stat-data">
+        <span class="stat-label">Total Users</span>
+        <h2 class="stat-value">{{ stats.totalUsers }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-green">
+        <span class="material-icons">how_to_reg</span>
+      </div>
+      <div class="stat-data">
+        <span class="stat-label">Active Users</span>
+        <h2 class="stat-value">{{ stats.activeUsers }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-red">
+        <span class="material-icons">person_off</span>
+      </div>
+      <div class="stat-data">
+        <span class="stat-label">Suspended</span>
+        <h2 class="stat-value">{{ stats.suspendedUsers }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon icon-purple">
+        <span class="material-icons">payments</span>
+      </div>
+      <div class="stat-data">
+        <span class="stat-label">Total Revenue</span>
+        <h2 class="stat-value">{{ totalRevenue | currency:'INR' }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid-sm" *ngIf="!loading && stats">
+    <div class="mini-stat-card">
+      <span class="stat-label">Drivers</span>
+      <h3 class="stat-value">{{ stats.totalDrivers }}</h3>
+    </div>
+    <div class="mini-stat-card">
+      <span class="stat-label">Managers</span>
+      <h3 class="stat-value">{{ stats.totalLotManagers }}</h3>
+    </div>
+    <div class="mini-stat-card">
+      <span class="stat-label">Admins</span>
+      <h3 class="stat-value">{{ stats.totalAdmins }}</h3>
+    </div>
+    <div class="mini-stat-card">
+      <span class="stat-label">Active Bookings</span>
+      <h3 class="stat-value">{{ activeBookings.length }}</h3>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <section class="quick-management">
+    <h3 class="section-title">Quick Management</h3>
+    <div class="action-grid">
+      <a routerLink="/admin/users" class="action-card">
+        <div class="action-icon">
+          <span class="material-icons">people_outline</span>
+        </div>
+        <div class="action-info">
+          <h4>Manage Users</h4>
+          <p>Suspend, reactivate or delete platform users.</p>
+        </div>
+      </a>
+      <a routerLink="/admin/broadcast" class="action-card">
+        <div class="action-icon">
+          <span class="material-icons">campaign</span>
+        </div>
+        <div class="action-info">
+          <h4>Broadcast Message</h4>
+          <p>Send platform-wide alerts and updates.</p>
+        </div>
+      </a>
+      <a routerLink="/admin/lot-approval" class="action-card">
+        <div class="action-icon">
+          <span class="material-icons">domain_verification</span>
+        </div>
+        <div class="action-info">
+          <h4>Lot Approvals</h4>
+          <p>Review and approve new parking lot applications.</p>
+        </div>
+      </a>
+      <a routerLink="/admin/analytics" class="action-card">
+        <div class="action-icon">
+          <span class="material-icons">insights</span>
+        </div>
+        <div class="action-info">
+          <h4>Analytics</h4>
+          <p>Detailed performance and usage reports.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+</div>
+
+<!-- Skeleton Loading -->
+<div class="skeleton-grid" *ngIf="loading">
+  <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+</div>

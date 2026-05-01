@@ -1,0 +1,164 @@
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">My Vehicles</h1>
+      <p class="page-subtitle">Manage and view all your registered vehicles</p>
+    </div>
+    <button class="add-vehicle-btn" (click)="showForm = !showForm" [class.cancel]="showForm">
+      <span class="material-icons">{{ showForm ? 'close' : 'add' }}</span>
+      {{ showForm ? 'Cancel' : 'Add Vehicle' }}
+    </button>
+  </div>
+
+  <!-- Registration Form -->
+  <div class="registration-section" *ngIf="showForm">
+    <div class="form-card">
+      <div class="form-header">
+        <h3>Register New Vehicle</h3>
+      </div>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="vehicle-form">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="licensePlate">License Plate *</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">badge</span>
+              <input id="licensePlate" formControlName="licensePlate" placeholder="MH 01 AB 1234">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="make">Make *</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">corporate_fare</span>
+              <input id="make" formControlName="make" placeholder="e.g. Honda">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="model">Model *</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">directions_car</span>
+              <input id="model" formControlName="model" placeholder="e.g. City">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="color">Color *</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">palette</span>
+              <input id="color" formControlName="color" placeholder="e.g. White">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="vehicleType">Vehicle Type *</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon">category</span>
+              <select id="vehicleType" formControlName="vehicleType">
+                <option value="TWO_WHEELER">Two Wheeler</option>
+                <option value="THREE_WHEELER">Three Wheeler</option>
+                <option value="FOUR_WHEELER">Four Wheeler</option>
+                <option value="HEAVY">Heavy Vehicle</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field checkbox-field">
+            <label class="checkbox-container">
+              <input type="checkbox" formControlName="isEV">
+              <span class="checkmark"></span>
+              <span class="label-text">Electric Vehicle (EV)</span>
+            </label>
+          </div>
+        </div>
+
+        <div *ngIf="error" class="error-message">
+          <span class="material-icons">error_outline</span>
+          {{ error }}
+        </div>
+
+        <div class="form-footer">
+          <button type="submit" class="submit-btn" [disabled]="submitting || form.invalid">
+            <span *ngIf="submitting" class="spinner"></span>
+            {{ submitting ? 'Registering...' : 'Register Vehicle' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="vehicles-grid" *ngIf="loading">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+      <div class="skeleton-header">
+        <div class="skeleton-circle"></div>
+        <div class="skeleton-lines">
+          <div class="line short"></div>
+          <div class="line long"></div>
+        </div>
+      </div>
+      <div class="skeleton-body">
+        <div class="line medium"></div>
+        <div class="line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && vehicles.length === 0 && !showForm">
+    <div class="empty-icon-wrapper">
+      <span class="material-icons">no_photography</span>
+    </div>
+    <h2>No Vehicles Found</h2>
+    <p>You haven't added any vehicles yet. Register a vehicle to start booking parking spots.</p>
+    <button class="btn-outline" (click)="showForm = true">
+      <span class="material-icons">add</span>
+      Add Your First Vehicle
+    </button>
+  </div>
+
+  <!-- Vehicle List -->
+  <div class="vehicles-grid" *ngIf="!loading && vehicles.length > 0">
+    <div class="vehicle-card" *ngFor="let v of vehicles" [class.ev-card]="v.isEV">
+      <div class="card-glow"></div>
+      <div class="card-header">
+        <div class="vehicle-type-icon">
+          <span class="material-icons">{{ getVehicleIcon(v.vehicleType) }}</span>
+        </div>
+        <div class="vehicle-info">
+          <h3 class="vehicle-name">{{ v.make }} {{ v.model }}</h3>
+          <span class="vehicle-type-tag">{{ formatVehicleType(v.vehicleType) }}</span>
+        </div>
+        <button class="action-btn delete" (click)="deleteVehicle(v.vehicleId!)" title="Remove Vehicle">
+          <span class="material-icons">delete_outline</span>
+        </button>
+      </div>
+
+      <div class="card-content">
+        <div class="detail-item">
+          <span class="label">License Plate</span>
+          <span class="value plate-text">{{ v.licensePlate }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">Color</span>
+          <span class="value color-info">
+            <span class="color-dot" [style.backgroundColor]="v.color"></span>
+            {{ v.color }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="badges">
+          <span class="badge ev" *ngIf="v.isEV">
+            <span class="material-icons">bolt</span> EV
+          </span>
+          <span class="badge added-date">
+            <span class="material-icons">calendar_today</span>
+            {{ v.registeredAt | date:'MMM d, y' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

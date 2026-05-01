@@ -1,0 +1,98 @@
+<div class="page">
+  <div class="page-header">
+    <div class="header-info">
+      <h1>My Parking Lots</h1>
+      <p class="subtitle">Manage facilities efficiently</p>
+    </div>
+    <a routerLink="/manager/lots/new" class="btn-primary">
+      <span class="material-icons">add_circle</span> New Lot
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="skeleton-grid">
+    <div class="skeleton-card" *ngFor="let _ of [1,2,3,4]"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && lots.length === 0" class="empty">
+    <div class="empty-icon-wrapper">
+      <span class="material-icons">apartment</span>
+    </div>
+    <h3>No Lots Found</h3>
+    <p>Get started by adding your first parking lot facility.</p>
+    <a routerLink="/manager/lots/new" class="btn-primary">Add Your First Lot</a>
+  </div>
+
+  <!-- Data View -->
+  <div class="lots-grid" *ngIf="!loading && lots.length > 0">
+    <div class="lot-card" 
+         *ngFor="let l of lots" 
+         [class.is-expanded]="expandedLotId === l.lotId"
+         (click)="toggleExpand(l.lotId)">
+      
+      <div class="lot-card-compact">
+        <div class="compact-info">
+          <div class="lot-name-group">
+            <h3>{{ l.name }}</h3>
+            <span class="badge" [class.badge-green]="l.open" [class.badge-gray]="!l.open">
+              {{ l.open ? 'Open' : 'Closed' }}
+            </span>
+          </div>
+          <div class="compact-stats">
+            <span class="material-icons">directions_car</span>
+            <strong>{{ l.availableSpots }} / {{ l.totalSpots }}</strong>
+            <span class="label">Spots Available</span>
+          </div>
+        </div>
+        <div class="expand-icon">
+          <span class="material-icons">{{ expandedLotId === l.lotId ? 'expand_less' : 'expand_more' }}</span>
+        </div>
+      </div>
+
+      <!-- Expanded Detailed View -->
+      <div class="lot-card-expanded" *ngIf="expandedLotId === l.lotId" (click)="$event.stopPropagation()">
+        <div class="expanded-divider"></div>
+        
+        <div class="detail-section">
+          <div class="detail-item">
+            <span class="material-icons">location_on</span>
+            <div class="detail-text">
+              <label>Location</label>
+              <p>{{ l.address }}, {{ l.city }}</p>
+            </div>
+          </div>
+          
+          <div class="detail-item">
+            <span class="material-icons">schedule</span>
+            <div class="detail-text">
+              <label>Business Hours</label>
+              <p>{{ l.openTime | slice:0:5 }} - {{ l.closeTime | slice:0:5 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="verification-banner" [class.verified]="l.approved">
+          <span class="material-icons">{{ l.approved ? 'verified' : 'history_toggle_off' }}</span>
+          <div class="banner-text">
+            <strong>{{ l.approved ? 'Verified Facility' : 'Verification Pending' }}</strong>
+            <span>{{ l.approved ? 'Authenticated by ParkEase' : 'Under administrative review' }}</span>
+          </div>
+        </div>
+
+        <div class="lot-actions">
+          <a [routerLink]="['/manager/lots', l.lotId, 'spots']" class="btn-action primary">
+            <span class="material-icons">dashboard</span> Manage Spots
+          </a>
+          <a [routerLink]="['/manager/lots', l.lotId, 'edit']" class="btn-action">
+            <span class="material-icons">edit</span> Edit
+          </a>
+          <button class="btn-action" (click)="toggleOpen(l)">
+            <span class="material-icons">{{ l.open ? 'lock_open' : 'lock' }}</span>
+            {{ l.open ? 'Close' : 'Open' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

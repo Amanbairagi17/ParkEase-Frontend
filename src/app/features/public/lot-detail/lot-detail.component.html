@@ -1,0 +1,180 @@
+<div class="page-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="pageLoading">
+    <div class="loader-ripple"><div></div><div></div></div>
+    <p>Loading lot details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="!pageLoading && error">
+    <div class="error-card">
+      <span class="material-icons">error_outline</span>
+      <h2>Oops!</h2>
+      <p>{{ error }}</p>
+      <button class="btn-primary" routerLink="/lots">Back to Search</button>
+    </div>
+  </div>
+
+  <!-- Data View -->
+  <div class="detail-container" *ngIf="!pageLoading && !error && lot">
+    <div class="detail-header">
+      <a routerLink="/lots" class="back-btn">
+        <span class="material-icons">arrow_back</span>
+        <span>Back to Search</span>
+      </a>
+    </div>
+
+    <div class="lot-hero">
+      <div class="hero-image-wrapper">
+        <img [src]="getLotImage(lot)" [alt]="lot.name" class="hero-image" (error)="handleImageError($event)">
+        <div class="image-overlay"></div>
+        <div class="status-chip" [class.open]="lot.open">
+          <span class="material-icons">{{ lot.open ? 'check_circle' : 'error' }}</span>
+          {{ lot.open ? 'Open Now' : 'Closed' }}
+        </div>
+      </div>
+      
+      <div class="hero-content">
+        <div class="lot-main-info">
+          <h1 class="lot-name">{{ lot.name }}</h1>
+          <p class="lot-location">
+            <span class="material-icons">location_on</span>
+            {{ lot.address }}, {{ lot.city }}
+          </p>
+        </div>
+
+        <div class="lot-quick-stats">
+          <div class="stat-box">
+            <span class="stat-value">{{ lot.availableSpots }}</span>
+            <span class="stat-label">Spots Left</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">{{ lot.totalSpots }}</span>
+            <span class="stat-label">Total Spots</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">₹40</span>
+            <span class="stat-label">Per Hour</span>
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <a routerLink="/driver/bookings/new" [queryParams]="{lotId: lot.lotId}" class="book-btn">
+            <span class="material-icons">calendar_today</span>
+            Book a Spot
+          </a>
+          <button class="share-btn">
+            <span class="material-icons">share</span>
+          </button>
+          <button class="favorite-btn">
+            <span class="material-icons">favorite_border</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lot-content-grid">
+      <div class="main-info-col">
+        <section class="info-section">
+          <h2 class="section-title">Description</h2>
+          <p class="description">
+            Located in the heart of {{ lot.city }}, this facility offers secure and convenient parking for both short-term and long-term stays. Equipped with 24/7 surveillance and professional management, we ensure your vehicle's safety while you go about your day.
+          </p>
+        </section>
+
+        <section class="info-section">
+          <h2 class="section-title">Amenities</h2>
+          <div class="amenities-grid">
+            <div class="amenity">
+              <span class="material-icons">videocam</span>
+              <span>CCTV 24/7</span>
+            </div>
+            <div class="amenity">
+              <span class="material-icons">security</span>
+              <span>Security Guard</span>
+            </div>
+            <div class="amenity">
+              <span class="material-icons">bolt</span>
+              <span>EV Charging</span>
+            </div>
+            <div class="amenity">
+              <span class="material-icons">accessible</span>
+              <span>Handicap Access</span>
+            </div>
+            <div class="amenity">
+              <span class="material-icons">payments</span>
+              <span>Digital Payments</span>
+            </div>
+            <div class="amenity">
+              <span class="material-icons">light_mode</span>
+              <span>Well Lit</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <h2 class="section-title">Available Spots ({{ availableSpots.length }})</h2>
+          <div class="spots-list" *ngIf="!spotsLoading">
+            <div class="spot-item" *ngFor="let s of availableSpots">
+              <div class="spot-id">
+                <span class="material-icons">place</span>
+                <span class="number">{{ s.spotNumber }}</span>
+              </div>
+              <div class="spot-details">
+                <span class="type-tag" [class]="spotTypeClass(s.spotType)">{{ s.spotType }}</span>
+                <span class="floor">Floor {{ s.floor }}</span>
+              </div>
+              <div class="spot-price">₹{{ s.pricePerHour }}/hr</div>
+              <button class="select-spot-btn" [routerLink]="['/driver/bookings/new']" [queryParams]="{lotId: lot.lotId, spotId: s.spotId}">
+                Select
+              </button>
+            </div>
+            <div class="no-spots" *ngIf="availableSpots.length === 0">
+              <span class="material-icons">info_outline</span>
+              <p>No spots currently available in this lot.</p>
+            </div>
+          </div>
+          <div class="spots-skeleton" *ngIf="spotsLoading">
+            <div class="skeleton-item" *ngFor="let i of [1,2,3]"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="side-info-col">
+        <div class="side-card">
+          <h3>Operating Hours</h3>
+          <div class="hours-list">
+            <div class="hour-row">
+              <span>Monday - Friday</span>
+              <span>{{ lot.openTime }} - {{ lot.closeTime }}</span>
+            </div>
+            <div class="hour-row">
+              <span>Saturday</span>
+              <span>{{ lot.openTime }} - {{ lot.closeTime }}</span>
+            </div>
+            <div class="hour-row">
+              <span>Sunday</span>
+              <span>{{ lot.openTime }} - {{ lot.closeTime }}</span>
+            </div>
+          </div>
+          <div class="live-indicator">
+            <span class="dot" [class.active]="lot.open"></span>
+            {{ lot.open ? 'Accepting Bookings' : 'Currently Closed' }}
+          </div>
+        </div>
+
+        <div class="side-card map-card">
+          <h3>Location</h3>
+          <div class="map-placeholder">
+            <span class="material-icons">map</span>
+            <p>Interactive Map View</p>
+          </div>
+          <button class="directions-btn">
+            <span class="material-icons">near_me</span>
+            Get Directions
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

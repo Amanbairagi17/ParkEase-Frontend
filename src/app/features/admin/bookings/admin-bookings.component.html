@@ -1,0 +1,94 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Booking Registry</h1>
+    <p class="page-subtitle">Platform-wide registry of all parking reservations and sessions.</p>
+  </div>
+</div>
+
+<div class="bookings-content animate-in">
+  <!-- Status Tabs -->
+  <div class="controls-bar">
+    <div class="filter-tabs">
+      <button 
+        *ngFor="let t of tabs" 
+        class="tab-btn" 
+        [class.active]="activeTab === t.value"
+        (click)="activeTab = t.value">
+        {{ t.label }}
+        <span class="count-pill">{{ count(t.value) }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table Container -->
+  <div class="table-wrapper">
+    <table class="parkease-table">
+      <thead>
+        <tr>
+          <th>Booking ID</th>
+          <th>Vehicle Info</th>
+          <th>Type</th>
+          <th>Current Status</th>
+          <th>Session Start</th>
+          <th>Total Amount</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let b of filtered">
+          <td class="font-mono text-xs">#{{ b.bookingId }}</td>
+          <td>
+            <div class="vehicle-cell">
+              <span class="plate-badge">{{ b.vehiclePlate }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="type-indicator">{{ b.bookingType | titlecase }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="'badge-' + b.status.toLowerCase()">
+              {{ b.status }}
+            </span>
+          </td>
+          <td class="text-secondary">{{ b.startTime | date:'MMM d, y • h:mm a' }}</td>
+          <td class="font-semibold">₹{{ b.totalAmount.toFixed(0) }}</td>
+          <td class="text-right">
+            <div class="action-buttons">
+              @if (b.status === 'RESERVED') {
+                <button class="icon-action-btn delete" (click)="action('cancel', b)" title="Cancel Booking">
+                  <span class="material-icons">cancel</span>
+                </button>
+                <button class="icon-action-btn" (click)="action('checkIn', b)" title="Process Check-In">
+                  <span class="material-icons">login</span>
+                </button>
+              }
+              @if (b.status === 'CHECKED_IN') {
+                <button class="icon-action-btn" (click)="action('checkOut', b)" title="Process Check-Out">
+                  <span class="material-icons">logout</span>
+                </button>
+              }
+              <button class="icon-action-btn" title="View Details">
+                <span class="material-icons">visibility</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Empty State -->
+        <tr *ngIf="filtered.length === 0 && !loading">
+          <td colspan="7">
+            <div class="empty-table-state">
+              <span class="material-icons">event_busy</span>
+              <p>No bookings found in this category.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Loading State -->
+    <div class="table-loading-shimmer" *ngIf="loading">
+      <div class="shimmer-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+  </div>
+</div>

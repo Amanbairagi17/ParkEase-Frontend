@@ -1,0 +1,142 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Profile Settings</h1>
+    <p class="page-subtitle">Manage your personal information, contact details and account status.</p>
+  </div>
+</div>
+
+<div class="profile-layout animate-in">
+  <div class="card profile-main-card">
+    <div class="profile-header-area">
+      <div class="avatar-large">
+        <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="Avatar">
+        <div *ngIf="!user?.profilePicUrl" class="avatar-placeholder">{{ initials }}</div>
+        <button class="edit-avatar-btn" title="Change Avatar">
+          <span class="material-icons">camera_alt</span>
+        </button>
+      </div>
+      <div class="user-branding">
+        <h2 class="user-display-name">{{ user?.fullName }}</h2>
+        <span class="badge" [ngClass]="'badge-' + user?.role?.toLowerCase()">
+          {{ user?.role | titlecase }}
+        </span>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="modern-form">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="label">Full Name</label>
+          <div class="input-wrapper">
+            <span class="material-icons prefix">person</span>
+            <input formControlName="fullName" class="input-control" placeholder="Enter your full name">
+          </div>
+          <div class="field-error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+            Please enter a valid full name (3-50 chars).
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="label">Email Address</label>
+          <div class="input-wrapper">
+            <span class="material-icons prefix">mail</span>
+            <input formControlName="email" type="email" class="input-control" placeholder="name@example.com">
+          </div>
+          <div class="field-error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+            Please enter a valid email address.
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="label">Phone Number</label>
+          <div class="input-wrapper">
+            <span class="material-icons prefix">call</span>
+            <input formControlName="phone" type="tel" class="input-control" placeholder="10-digit mobile number">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="label">Mailing Address</label>
+          <div class="input-wrapper">
+            <span class="material-icons prefix">home</span>
+            <input formControlName="address" class="input-control" placeholder="House no, Street, City...">
+          </div>
+        </div>
+
+        <!-- Driver Specific Fields -->
+        <ng-container *ngIf="user?.role === 'DRIVER'">
+          <div class="form-field">
+            <label class="label">Primary Vehicle Plate</label>
+            <div class="input-wrapper">
+              <span class="material-icons prefix">directions_car</span>
+              <input formControlName="vehiclePlate" class="input-control font-mono uppercase" placeholder="XX 00 XX 0000">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="label">Vehicle Category</label>
+            <div class="input-wrapper">
+              <span class="material-icons prefix">category</span>
+              <select formControlName="vehicleType" class="input-control">
+                <option value="">Select category</option>
+                <option value="2W">Two Wheeler (Bike/Scooter)</option>
+                <option value="4W">Four Wheeler (Car/SUV)</option>
+              </select>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <div class="form-footer">
+        <div class="status-messages">
+          <div *ngIf="success" class="alert alert-success animate-in">
+            <span class="material-icons">check_circle</span>
+            Profile updated successfully
+          </div>
+          <div *ngIf="error" class="alert alert-error animate-in">
+            <span class="material-icons">error_outline</span>
+            {{ error }}
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving">
+          <span class="material-icons" *ngIf="!saving">save</span>
+          <span class="spinner-sm" *ngIf="saving"></span>
+          {{ saving ? 'Saving Changes...' : 'Save Profile' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="side-panel">
+    <div class="card account-meta-card">
+      <h3 class="section-title">Account Security</h3>
+      <div class="meta-item">
+        <span class="meta-label">Account Created</span>
+        <span class="meta-value">{{ user?.createdAt | date:'mediumDate' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">System Role</span>
+        <span class="meta-value text-primary font-bold">{{ user?.role }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Verification Status</span>
+        <span class="status-pill verified">
+          <span class="material-icons">verified</span> Verified
+        </span>
+      </div>
+      
+      <div class="panel-actions">
+        <button class="btn btn-ghost btn-sm btn-full" (click)="logout()">
+          <span class="material-icons">logout</span>
+          Sign Out of ParkEase
+        </button>
+      </div>
+    </div>
+
+    <div class="info-note card">
+      <span class="material-icons text-info">info</span>
+      <p>Updating your email address may require you to re-verify your account for security purposes.</p>
+    </div>
+  </div>
+</div>

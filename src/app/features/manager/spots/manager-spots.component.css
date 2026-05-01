@@ -1,0 +1,35 @@
+.page { max-width: 1100px; }
+.back-link { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--muted-text); text-decoration: none; font-size: 0.875rem; margin-bottom: 1rem; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
+.subtitle { color: var(--muted-text); font-size: 0.875rem; margin: 0; }
+.btn-primary { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.6rem 1.25rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
+.add-form { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; }
+h3 { font-size: 1rem; font-weight: 600; margin: 0 0 1rem; }
+.form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.col-span { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 0.4rem; }
+label { font-size: 0.875rem; font-weight: 500; }
+input, select { padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font-size: 0.875rem; outline: none; }
+.alert-error { padding: 0.6rem 0.75rem; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: var(--danger); font-size: 0.875rem; }
+.form-actions { display: flex; justify-content: flex-end; }
+.filter-row { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.filter-btn { padding: 0.4rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; font-size: 0.8rem; color: var(--muted-text); }
+.filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.skeleton-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.skeleton-card { height: 100px; background: var(--surface); border-radius: 8px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.spots-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.spot-card { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 0.85rem; position: relative; display: flex; flex-direction: column; gap: 0.2rem; }
+.spot-card.available { border-color: #86efac; background: #f0fdf4; }
+.spot-card.occupied { border-color: #fca5a5; background: #fef2f2; }
+.spot-card.reserved { border-color: #93c5fd; background: #eff6ff; }
+.spot-card.maintenance { border-color: #fcd34d; background: #fffbeb; }
+.spot-num { font-weight: 700; font-size: 1rem; }
+.spot-type { font-size: 0.72rem; color: var(--muted-text); }
+.spot-floor { font-size: 0.72rem; color: var(--muted-text); }
+.spot-status { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+.spot-price { font-size: 0.78rem; font-weight: 600; }
+.delete-spot-btn { position: absolute; top: 4px; right: 4px; background: none; border: none; cursor: pointer; color: var(--muted-text); padding: 2px; font-size: 0.9rem; border-radius: 4px; }
+.delete-spot-btn:hover { color: var(--danger); background: #fee2e2; }
+.no-spots { grid-column: 1/-1; color: var(--muted-text); font-size: 0.875rem; }

@@ -1,0 +1,117 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Parking Lot Verification</h1>
+    <p class="page-subtitle">Review, verify and activate new parking lot submissions from lot managers.</p>
+  </div>
+</div>
+
+<div class="approval-content animate-in">
+  <!-- Tabs Bar -->
+  <div class="controls-bar">
+    <div class="filter-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'pending'"
+        (click)="activeTab = 'pending'">
+        <span class="material-icons">pending</span>
+        Pending Review
+        <span class="count-pill" *ngIf="pending.length > 0">{{ pending.length }}</span>
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'approved'"
+        (click)="activeTab = 'approved'">
+        <span class="material-icons">verified</span>
+        Active / Approved
+      </button>
+    </div>
+  </div>
+
+  <div class="lots-grid" *ngIf="!loading">
+    <div class="lot-entry-card" *ngFor="let lot of currentList">
+      <div class="entry-visual">
+        <img [src]="lot.imageUrl || 'https://images.unsplash.com/photo-1590674899484-13da0d1b58f5?auto=format&fit=crop&q=80&w=600'" alt="Lot Image">
+        <div class="entry-status-badge" [class.verified]="lot.approved">
+          {{ lot.approved ? 'Verified' : 'Pending' }}
+        </div>
+      </div>
+      
+      <div class="entry-details">
+        <div class="entry-header">
+          <h3>{{ lot.name }}</h3>
+          <p class="entry-location">
+            <span class="material-icons">place</span>
+            {{ lot.address }}, {{ lot.city }}
+          </p>
+        </div>
+
+        <div class="entry-specs">
+          <div class="spec-item">
+            <span class="material-icons">local_parking</span>
+            <div class="spec-data">
+              <span class="spec-label">Capacity</span>
+              <span class="spec-value">{{ lot.totalSpots }} Spots</span>
+            </div>
+          </div>
+          <div class="spec-item">
+            <span class="material-icons">history_toggle_off</span>
+            <div class="spec-data">
+              <span class="spec-label">Hours</span>
+              <span class="spec-value">{{ lot.openTime }} - {{ lot.closeTime }}</span>
+            </div>
+          </div>
+          <div class="spec-item">
+            <span class="material-icons">account_circle</span>
+            <div class="spec-data">
+              <span class="spec-label">Manager</span>
+              <span class="spec-value">ID: #{{ lot.managerId }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="entry-footer">
+          <ng-container *ngIf="!lot.approved">
+            <button class="btn btn-primary btn-full" 
+                    [disabled]="processing === lot.lotId"
+                    (click)="approve(lot)">
+              <span class="material-icons" *ngIf="processing !== lot.lotId">verified_user</span>
+              <span class="spinner-sm" *ngIf="processing === lot.lotId"></span>
+              {{ processing === lot.lotId ? 'Activating...' : 'Verify & Activate' }}
+            </button>
+            <button class="btn btn-ghost text-error" 
+                    [disabled]="processing === lot.lotId"
+                    (click)="reject(lot)">
+              <span class="material-icons">delete_sweep</span>
+              Reject
+            </button>
+          </ng-container>
+
+          <div class="verification-confirmed" *ngIf="lot.approved">
+            <div class="conf-icon">
+              <span class="material-icons">verified</span>
+            </div>
+            <div class="conf-text">
+              <span class="conf-title">Verification Complete</span>
+              <span class="conf-subtitle">Lot is live and accepting bookings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-list-state card" *ngIf="currentList.length === 0">
+      <div class="empty-visual">
+        <span class="material-icons">done_all</span>
+      </div>
+      <h3>Work Complete!</h3>
+      <p>There are no {{ activeTab }} lot submissions to display at this moment.</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-full-state" *ngIf="loading">
+    <div class="spinner-large"></div>
+    <p>Loading lot database...</p>
+  </div>
+</div>

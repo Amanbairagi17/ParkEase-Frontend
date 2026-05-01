@@ -1,0 +1,61 @@
+<div class="auth-layout">
+  <div class="auth-panel hidden-mobile">
+    <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+    <div>
+      <h2>Join ParkEase today.</h2>
+      <p>Find. Reserve. Park — all in one place.</p>
+    </div>
+    <span class="auth-copy">© {{ year }} ParkEase</span>
+  </div>
+
+  <div class="auth-form-area">
+    <div class="auth-form-card">
+      <div class="mobile-logo">
+        <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+      </div>
+      <h1>Create account</h1>
+      <p class="subtitle">Fill in the details below to get started.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+        <div class="field">
+          <label>Full name</label>
+          <input formControlName="fullName" placeholder="John Doe">
+          <span class="err" *ngIf="f['fullName'].touched && f['fullName'].errors?.['required']">Name required</span>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input formControlName="email" type="email" placeholder="you@example.com">
+          <span class="err" *ngIf="f['email'].touched && f['email'].errors?.['email']">Valid email required</span>
+        </div>
+        <div class="field">
+          <label>Phone</label>
+          <input formControlName="phone" type="tel" placeholder="+91 98765 43210">
+          <span class="err" *ngIf="f['phone'].touched && f['phone'].errors?.['required']">Phone required</span>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input formControlName="password" type="password" placeholder="Min 8 characters">
+          <span class="err" *ngIf="f['password'].touched && f['password'].errors?.['minlength']">Min 8 characters</span>
+        </div>
+        <div class="field">
+          <label>I am a…</label>
+          <div class="role-group">
+            <label class="role-option" *ngFor="let r of roles">
+              <input type="radio" formControlName="role" [value]="r.value">
+              <span>{{ r.label }}</span>
+            </label>
+          </div>
+        </div>
+
+        @if (error) { <div class="alert-error">{{ error }}</div> }
+
+        <button type="submit" class="btn-primary" [disabled]="submitting">
+          @if (submitting) { <span class="spinner"></span> }
+          {{ submitting ? 'Creating account…' : 'Create account' }}
+        </button>
+      </form>
+
+      <p class="switch-auth">Already have an account? <a routerLink="/login">Sign in</a></p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,95 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Financial Ledger</h1>
+    <p class="page-subtitle">Complete log of platform financial transactions and revenue metrics.</p>
+  </div>
+</div>
+
+<div class="payments-content animate-in">
+  <!-- Financial Chips -->
+  <div class="metrics-bar" *ngIf="!loading">
+    <div class="metric-chip revenue">
+      <span class="material-icons">account_balance_wallet</span>
+      <div class="metric-info">
+        <span class="label">Total Revenue</span>
+        <span class="value">₹{{ revenue | number:'1.0-0' }}</span>
+      </div>
+    </div>
+    <div class="metric-chip pending">
+      <span class="material-icons">pending_actions</span>
+      <div class="metric-info">
+        <span class="label">Pending</span>
+        <span class="value">{{ pending }}</span>
+      </div>
+    </div>
+    <div class="metric-chip refunded">
+      <span class="material-icons">history</span>
+      <div class="metric-info">
+        <span class="label">Refunded</span>
+        <span class="value">{{ refunded }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="parkease-table">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Booking Reference</th>
+          <th>Payment Method</th>
+          <th>Gross Amount</th>
+          <th>Process Status</th>
+          <th>Settlement Date</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of payments">
+          <td class="font-mono text-xs">#{{ p.paymentId }}</td>
+          <td class="font-mono text-xs text-muted">#{{ p.bookingId }}</td>
+          <td>
+            <div class="method-cell">
+              <span class="material-icons">{{ p.mode !== 'CASH' ? 'credit_card' : 'payments' }}</span>
+              {{ p.mode | titlecase }}
+            </div>
+          </td>
+          <td class="font-semibold text-primary">₹{{ p.amount | number:'1.2-2' }}</td>
+          <td>
+            <span class="badge" [ngClass]="'badge-' + p.status.toLowerCase()">
+              {{ p.status }}
+            </span>
+          </td>
+          <td class="text-secondary">{{ (p.paidAt || '') | date:'MMM d, y' }}</td>
+          <td class="text-right">
+            <div class="action-buttons">
+              <button *ngIf="p.status === 'COMPLETED'" (click)="refund(p)" class="btn btn-ghost btn-sm">
+                <span class="material-icons">undo</span>
+                Issue Refund
+              </button>
+              <button class="icon-action-btn">
+                <span class="material-icons">more_vert</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Empty State -->
+        <tr *ngIf="payments.length === 0 && !loading">
+          <td colspan="7">
+            <div class="empty-table-state">
+              <span class="material-icons">account_balance</span>
+              <p>No financial transactions found.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Loading State -->
+    <div class="table-loading-shimmer" *ngIf="loading">
+      <div class="shimmer-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+  </div>
+</div>

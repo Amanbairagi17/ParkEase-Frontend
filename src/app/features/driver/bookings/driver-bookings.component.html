@@ -1,0 +1,93 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">My Bookings</h1>
+    <p class="page-subtitle">Track your active parking sessions and reservation history.</p>
+  </div>
+  <div class="header-actions">
+    <button routerLink="/driver/bookings/new" class="btn btn-primary shadow-glow">
+      <span class="material-icons">add_circle</span>
+      New Reservation
+    </button>
+  </div>
+</div>
+
+<div class="bookings-layout animate-in">
+  <!-- Status Navigation -->
+  <div class="controls-bar">
+    <div class="pill-nav">
+      @for (tab of tabs; track tab.value) {
+        <button class="pill-btn" 
+                [class.active]="activeTab() === tab.value"
+                (click)="setTab(tab.value)">
+          <span class="tab-label">{{ tab.label }}</span>
+          <span class="tab-badge">{{ getTabCount(tab.value) }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Bookings List -->
+  <div class="bookings-grid">
+    @if (loading()) {
+      <div class="skeleton-grid" *ngFor="let i of [1,2,3]">
+        <div class="skeleton-booking-card"></div>
+      </div>
+    } @else {
+      @if (filtered().length === 0) {
+        <div class="card empty-state-card animate-in">
+          <div class="empty-icon-box">
+            <span class="material-icons">no_meeting_room</span>
+          </div>
+          <h3>No Bookings Found</h3>
+          <p>You don't have any bookings in the <strong>{{ activeTab() | lowercase }}</strong> category yet.</p>
+          <button routerLink="/driver/bookings/new" class="btn btn-primary btn-sm">
+            Find Parking Spot
+          </button>
+        </div>
+      } @else {
+        <div class="booking-list-container">
+          @for (booking of filtered(); track booking.bookingId) {
+            <div class="card booking-entry-card" [routerLink]="['/driver/bookings', booking.bookingId]">
+              <div class="entry-header">
+                <div class="vehicle-info">
+                  <div class="plate-box">{{ booking.vehiclePlate }}</div>
+                  <div class="lot-ref">
+                    <span class="material-icons">location_on</span>
+                    Parking Lot #{{ booking.lotId }}
+                  </div>
+                </div>
+                <div class="status-box">
+                  <span class="badge" [ngClass]="'badge-' + booking.status.toLowerCase()">
+                    {{ booking.status }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="entry-body">
+                <div class="time-meta">
+                  <div class="meta-item">
+                    <span class="material-icons">event</span>
+                    <span>{{ booking.startTime | date:'EEEE, MMM d' }}</span>
+                  </div>
+                  <div class="meta-item">
+                    <span class="material-icons">history</span>
+                    <span>{{ booking.startTime | date:'h:mm a' }}</span>
+                  </div>
+                </div>
+                <div class="price-box">
+                  <span class="currency">₹</span>
+                  <span class="amount">{{ booking.totalAmount | number:'1.0-0' }}</span>
+                </div>
+              </div>
+              
+              <div class="entry-footer">
+                <span class="view-details">View Reservation Details</span>
+                <span class="material-icons">arrow_forward</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

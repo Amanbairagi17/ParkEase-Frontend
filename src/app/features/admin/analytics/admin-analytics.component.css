@@ -1,0 +1,122 @@
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.analysis-panel {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.item-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  padding: 0.125rem 0.625rem;
+  border-radius: 6px;
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Color Classes */
+.progress-fill.blue { background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
+.progress-fill.green { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
+.progress-fill.yellow { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+.progress-fill.red { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.3); }
+.progress-fill.purple { background: #8b5cf6; box-shadow: 0 0 12px rgba(139, 92, 246, 0.3); }
+
+/* Reuse Stats Grid styles from global or dashboard if needed, 
+   but localized here for safety */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .analysis-grid { grid-template-columns: 1fr; }
+}

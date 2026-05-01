@@ -1,0 +1,143 @@
+<div class="dashboard-container">
+  <header class="welcome-header">
+    <div class="welcome-text">
+      <h1>Hello, {{ firstName }}!</h1>
+      <p>Welcome back to ParkEase. Here's what's happening today.</p>
+    </div>
+    <button routerLink="/driver/new-booking" class="quick-book-btn">
+      <span class="material-icons">add</span>
+      Quick Book
+    </button>
+  </header>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    @if (loading()) {
+      @for (i of [1,2,3]; track i) {
+        <div class="stat-card">
+          <app-skeleton-loader type="title" width="60%"></app-skeleton-loader>
+          <app-skeleton-loader type="text" width="40%"></app-skeleton-loader>
+        </div>
+      }
+    } @else {
+      <div class="stat-card">
+        <div class="stat-icon bookings">
+          <span class="material-icons">local_parking</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().totalBookings }}</span>
+          <span class="stat-label">Total Bookings</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon vehicles">
+          <span class="material-icons">directions_car</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().activeVehicles }}</span>
+          <span class="stat-label">Registered Vehicles</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon spent">
+          <span class="material-icons">account_balance_wallet</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">₹{{ stats().totalSpent | number:'1.0-0' }}</span>
+          <span class="stat-label">Total Spent</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Active Bookings -->
+    <section class="dashboard-section main-content">
+      <div class="section-header">
+        <h2>Active Bookings</h2>
+        <a routerLink="/driver/bookings" class="view-all">View all</a>
+      </div>
+
+      <div class="bookings-list">
+        @if (loading()) {
+          @for (i of [1,2]; track i) {
+            <app-skeleton-loader type="card" height="120px"></app-skeleton-loader>
+          }
+        } @else {
+          @if (activeBookings$ | async; as activeBookings) {
+            @if (activeBookings.length === 0) {
+              <div class="empty-state">
+                <span class="material-icons">event_busy</span>
+                <p>No active bookings</p>
+                <button routerLink="/driver/new-booking" class="btn-text">Book now</button>
+              </div>
+            } @else {
+              @for (booking of activeBookings; track booking.bookingId) {
+                <div class="booking-card" [routerLink]="['/driver/bookings', booking.bookingId]">
+                  <div class="booking-main">
+                    <div class="booking-info">
+                      <span class="plate">{{ booking.vehiclePlate }}</span>
+                      <span class="lot-name">Lot ID: {{ booking.lotId }}</span>
+                    </div>
+                    <div class="booking-status">
+                      <span class="status-badge" [ngClass]="'status-' + booking.status.toLowerCase()">
+                        {{ booking.status }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="booking-footer">
+                    <span class="time">
+                      <span class="material-icons">schedule</span>
+                      {{ booking.startTime | date:'MMM d, h:mm a' }}
+                    </span>
+                    <span class="price">₹{{ booking.totalAmount }}</span>
+                  </div>
+                </div>
+              }
+            }
+          }
+        }
+      </div>
+    </section>
+
+    <!-- Recent Notifications -->
+    <section class="dashboard-section sidebar-content">
+      <div class="section-header">
+        <h2>Notifications</h2>
+        <a routerLink="/driver/notifications" class="view-all">See all</a>
+      </div>
+
+      <div class="mini-notifications">
+        @if (loading()) {
+          @for (i of [1,2,3]; track i) {
+            <div class="mini-notif-skeleton">
+              <app-skeleton-loader type="avatar"></app-skeleton-loader>
+              <div class="skeleton-text">
+                <app-skeleton-loader type="text" width="80%"></app-skeleton-loader>
+                <app-skeleton-loader type="text" width="40%"></app-skeleton-loader>
+              </div>
+            </div>
+          }
+        } @else {
+          @if (recentNotifications$ | async; as notifications) {
+            @if (notifications.length === 0) {
+              <p class="empty-msg">No new notifications</p>
+            } @else {
+              @for (n of notifications; track n.notificationId) {
+                <div class="mini-notif" [class.unread]="!n.isRead">
+                  <div class="notif-icon" [ngClass]="n.type.toLowerCase()">
+                    <span class="material-icons">{{ getIcon(n.type) }}</span>
+                  </div>
+                  <div class="notif-content">
+                    <p class="notif-title">{{ n.title }}</p>
+                    <span class="notif-time">{{ n.sentAt | date:'shortTime' }}</span>
+                  </div>
+                </div>
+              }
+            }
+          }
+        }
+      </div>
+    </section>
+  </div>
+</div>

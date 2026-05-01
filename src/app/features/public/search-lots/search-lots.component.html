@@ -1,0 +1,107 @@
+<div class="search-container">
+  <div class="search-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Find Your Perfect Booking Spot</h1>
+      <p class="hero-subtitle">Book secure parking in seconds across the city</p>
+      
+      <div class="search-bar-wrapper">
+        <div class="search-bar">
+          <div class="input-group">
+            <span class="material-icons">search</span>
+            <input [formControl]="searchCtrl" placeholder="Search by name or address...">
+          </div>
+          <div class="divider"></div>
+          <div class="input-group">
+            <span class="material-icons">location_on</span>
+            <input [formControl]="cityCtrl" placeholder="Enter city...">
+          </div>
+          <button class="search-action-btn">
+            <span class="material-icons">filter_list</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-section">
+    <div class="results-header">
+      <h2 class="section-title">
+        {{ loading() ? 'Searching...' : (lots().length + ' Parking Lots Found') }}
+      </h2>
+      <div class="view-options">
+        <button class="view-btn active"><span class="material-icons">grid_view</span></button>
+        <button class="view-btn"><span class="material-icons">map</span></button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="lots-grid" *ngIf="loading()">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="skeleton-lot-wrapper">
+          <app-skeleton-loader type="card" height="350px"></app-skeleton-loader>
+        </div>
+      }
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-results" *ngIf="!loading() && lots().length === 0">
+      <div class="empty-illustration">
+        <span class="material-icons">search_off</span>
+      </div>
+      <h3>No Results Found</h3>
+      <p>We couldn't find any parking lots matching your criteria. Try searching for a different city or keyword.</p>
+      <button class="reset-btn" (click)="resetSearch()">Clear All Filters</button>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="lots-grid" *ngIf="!loading() && lots().length > 0">
+      @for (lot of lots(); track lot.lotId) {
+        <div class="lot-card" [routerLink]="['/lots', lot.lotId]">
+          <div class="lot-image-wrapper">
+            <img [src]="getLotImage(lot)" [alt]="lot.name" class="lot-image" (error)="handleImageError($event)">
+            <div class="lot-status-overlay">
+              <span class="status-badge" [class.open]="lot.open" [class.closed]="!lot.open">
+                {{ lot.open ? 'OPEN' : 'CLOSED' }}
+              </span>
+            </div>
+            <div class="price-tag">
+              <span class="currency">₹</span>
+              <span class="amount">40</span>
+              <span class="unit">/hr</span>
+            </div>
+          </div>
+
+          <div class="lot-details">
+            <div class="lot-main-info">
+              <h3 class="lot-name">{{ lot.name }}</h3>
+              <p class="lot-location">
+                <span class="material-icons">location_on</span>
+                {{ lot.address }}, {{ lot.city }}
+              </p>
+            </div>
+
+            <div class="lot-meta">
+              <div class="meta-item">
+                <span class="material-icons">event_seat</span>
+                <span class="meta-text">{{ lot.availableSpots }} / {{ lot.totalSpots }} Available</span>
+              </div>
+              <div class="meta-item">
+                <span class="material-icons">schedule</span>
+                <span class="meta-text">{{ lot.openTime }} - {{ lot.closeTime }}</span>
+              </div>
+            </div>
+
+            <div class="lot-footer">
+              <div class="amenities">
+                <span class="material-icons" title="CCTV Camera">videocam</span>
+                <span class="material-icons" title="Security Guard">security</span>
+                <span class="material-icons" title="EV Charging">bolt</span>
+              </div>
+              <button class="book-now-btn">Book Now</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

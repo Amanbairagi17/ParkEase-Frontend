@@ -1,0 +1,101 @@
+<div class="page">
+  <a routerLink="/manager/lots" class="back-link">
+    <span class="material-icons">arrow_back</span> My lots
+  </a>
+  <div class="page-header">
+    <div>
+      <h1>{{ lot?.name || 'Spots' }}</h1>
+      <p class="subtitle">{{ lot?.city }} · {{ spots.length }} spots total</p>
+    </div>
+    <button class="btn-primary" (click)="showForm = !showForm">
+      <span class="material-icons">{{ showForm ? 'close' : 'add' }}</span>
+      {{ showForm ? 'Cancel' : 'Add spots' }}
+    </button>
+  </div>
+
+  @if (showForm) {
+    <div class="add-form">
+      <h3>Add new spot(s)</h3>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+        <div class="field">
+          <label>Spot number *</label>
+          <input formControlName="spotNumber" placeholder="A-01">
+        </div>
+        <div class="field">
+          <label>Floor *</label>
+          <input formControlName="floor" type="number" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Spot type *</label>
+          <select formControlName="spotType">
+            <option value="CAR">Car (Standard/Compact)</option>
+            <option value="BIKE">Bike</option>
+            <option value="TRUCK">Truck (Large)</option>
+            <option value="EV">EV Charging</option>
+            <option value="HANDICAPPED">Handicapped</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Vehicle type *</label>
+          <select formControlName="vehicleType">
+            <option value="TWO_WHEELER">Two Wheeler</option>
+            <option value="FOUR_WHEELER">Four Wheeler</option>
+            <option value="THREE_WHEELER">Three Wheeler</option>
+            <option value="HEAVY">Heavy</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Price/hr (₹) *</label>
+          <input formControlName="pricePerHour" type="number" min="0" step="0.5">
+        </div>
+        @if (formError) {
+          <div class="alert-error col-span">{{ formError }}</div>
+        }
+        <div class="form-actions col-span">
+          <button type="submit" class="btn-primary" [disabled]="submitting">
+            {{ submitting ? 'Adding…' : 'Add spot' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filter -->
+  <div class="filter-row">
+    @for (f of filters; track f) {
+      <button class="filter-btn"
+              [class.active]="activeFilter === f"
+              (click)="activeFilter = f">{{ f }}</button>
+    }
+  </div>
+
+  @if (loading) {
+    <div class="skeleton-grid">
+      @for (_ of [1,2,3,4,5,6]; track $index) {
+        <div class="skeleton-card"></div>
+      }
+    </div>
+  } @else {
+    <div class="spots-grid">
+      @for (s of filteredSpots; track s.spotId) {
+        <div class="spot-card" 
+             [class.available]="s.status === 'AVAILABLE'"
+             [class.occupied]="s.status === 'OCCUPIED'"
+             [class.reserved]="s.status === 'RESERVED'"
+             [class.maintenance]="s.status === 'MAINTENANCE'">
+          <div class="spot-num">{{ s.spotNumber }}</div>
+          <div class="spot-type">{{ s.spotType }}</div>
+          <div class="spot-floor">Floor {{ s.floor }}</div>
+          <div class="spot-status">{{ s.status }}</div>
+          <div class="spot-price">₹{{ s.pricePerHour }}/hr</div>
+          <button class="delete-spot-btn" (click)="deleteSpot(s.spotId)">
+            <span class="material-icons">delete_outline</span>
+          </button>
+        </div>
+      }
+      @if (filteredSpots.length === 0) {
+        <div class="no-spots">No spots match this filter.</div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,124 @@
+.payments-container {
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.header-content h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0 0 8px 0;
+}
+
+.header-content p {
+  color: #94a3b8;
+  margin: 0;
+}
+
+.summary-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 16px 24px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.summary-card .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-card .value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #22c55e;
+}
+
+.table-wrapper {
+  background: #1e293b;
+  border-radius: 20px;
+  border: 1px solid #334155;
+  overflow: hidden;
+}
+
+.payments-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.payments-table th {
+  padding: 16px 24px;
+  background: #0f172a;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #334155;
+}
+
+.payments-table td {
+  padding: 16px 24px;
+  color: #cbd5e1;
+  font-size: 14px;
+  border-bottom: 1px solid #334155;
+}
+
+.tx-id {
+  font-family: monospace;
+  color: #94a3b8;
+}
+
+.mode-tag {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.amount {
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-completed { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.status-pending { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+.status-failed { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: #64748b;
+}
+
+.empty-state span { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+
+@media (max-width: 768px) {
+  .page-header { flex-direction: column; align-items: flex-start; gap: 24px; }
+  .summary-card { align-items: flex-start; width: 100%; }
+  .table-wrapper { overflow-x: auto; }
+}

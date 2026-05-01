@@ -1,0 +1,39 @@
+.page { max-width: 1100px; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem; }
+.subtitle { color: var(--muted-text); font-size: 0.875rem; margin: 0; }
+.btn-primary { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.6rem 1.25rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 500; }
+.stats-grid, .skeleton-stats { display: grid; gap: 1rem; margin-bottom: 1.5rem; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 768px) { .stats-grid, .skeleton-stats { grid-template-columns: repeat(4, 1fr); } }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; }
+.stat-card.accent { border-color: var(--primary); background: var(--primary-light); }
+.stat-icon { width: 40px; height: 40px; background: var(--hover); border-radius: 8px; display: grid; place-items: center; color: var(--primary); }
+.stat-val { font-size: 1.5rem; font-weight: 700; line-height: 1; }
+.stat-lab { font-size: 0.78rem; color: var(--muted-text); margin-top: 0.2rem; }
+.skeleton-card { height: 90px; background: var(--surface); border-radius: 10px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+.content-grid { display: grid; gap: 1.25rem; }
+@media (min-width: 768px) { .content-grid { grid-template-columns: 1fr 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+.view-all { font-size: 0.8rem; color: var(--primary); text-decoration: none; }
+.lot-list, .booking-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.lot-row { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0.75rem; background: var(--bg); border-radius: 8px; text-decoration: none; color: inherit; }
+.lot-row:hover { background: var(--hover); }
+.lot-row-info { display: flex; flex-direction: column; gap: 0.1rem; }
+.lot-name { font-weight: 500; font-size: 0.875rem; }
+.lot-city { font-size: 0.75rem; color: var(--muted-text); }
+.lot-row-right { display: flex; align-items: center; gap: 0.5rem; }
+.badge { font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 9999px; font-weight: 500; }
+.badge-green { background: #dcfce7; color: #166534; }
+.badge-gray { background: var(--hover); color: var(--muted-text); }
+.spots-count { font-size: 0.78rem; color: var(--muted-text); }
+.booking-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; background: var(--bg); border-radius: 8px; }
+.plate { font-weight: 600; font-size: 0.85rem; font-family: monospace; flex: 1; }
+.status-badge { font-size: 0.68rem; padding: 0.1rem 0.45rem; border-radius: 9999px; font-weight: 600; }
+.status-RESERVED { background: #dbeafe; color: #1e40af; }
+.status-CHECKED_IN { background: #dcfce7; color: #166534; }
+.amount { font-size: 0.85rem; font-weight: 600; }
+.empty { font-size: 0.875rem; color: var(--muted-text); padding: 0.5rem 0; }
+.empty a { color: var(--primary); text-decoration: none; }

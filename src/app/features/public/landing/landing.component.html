@@ -1,0 +1,36 @@
+<div class="landing">
+  <header class="header">
+    <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+    <div class="header-actions">
+      <a routerLink="/login" class="btn-ghost">Sign in</a>
+      <a routerLink="/register" class="btn-primary">Get started</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Smart parking,<br>made simple.</h1>
+      <p>Reserve a spot in seconds. Check in digitally. Never circle the block again.</p>
+      <div class="hero-actions">
+        <a routerLink="/register" class="btn-primary-lg">Get started free</a>
+        <a routerLink="/lots" class="btn-ghost-lg">Browse parking lots</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="features-grid">
+      @for (f of features; track f.icon) {
+        <div class="feature-card">
+          <span class="material-icons feature-icon">{{ f.icon }}</span>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.desc }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© {{ year }} ParkEase. All rights reserved.</p>
+  </footer>
+</div>

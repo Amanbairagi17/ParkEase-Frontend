@@ -1,0 +1,146 @@
+<div class="booking-container">
+  @if (success()) {
+    <div class="success-overlay">
+      <div class="success-card">
+        <div class="success-icon">
+          <span class="material-icons">check_circle</span>
+        </div>
+        <h2>Booking Confirmed!</h2>
+        <p>Your parking spot has been reserved successfully. You will receive a notification shortly.</p>
+        <div class="loader-line"></div>
+        <p class="redirect-text">Redirecting to booking details...</p>
+      </div>
+    </div>
+  }
+
+  <header class="page-header">
+    <h1>Book a Spot</h1>
+    <p>Select your preferred parking lot and spot</p>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-layout">
+      <div class="form-skeleton">
+        <app-skeleton-loader type="title" width="40%"></app-skeleton-loader>
+        @for (i of [1,2,3,4]; track i) {
+          <app-skeleton-loader type="text" height="50px"></app-skeleton-loader>
+        }
+      </div>
+      <div class="spots-skeleton">
+        <app-skeleton-loader type="title" width="30%"></app-skeleton-loader>
+        <div class="grid">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <app-skeleton-loader type="card" height="80px"></app-skeleton-loader>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="booking-layout">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="booking-form">
+        <div class="form-section">
+          <h3>1. Location & Vehicle</h3>
+          
+          <div class="form-group">
+            <label>Parking Lot</label>
+            <select formControlName="lotId" (change)="onLotChange()">
+              <option value="">Select a lot</option>
+              @for (lot of lots(); track lot.lotId) {
+                <option [value]="lot.lotId">{{ lot.name }} - {{ lot.city }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Vehicle</label>
+            <select formControlName="vehiclePlate">
+              <option value="">Select your vehicle</option>
+              @for (v of vehicles(); track v.vehicleId) {
+                <option [value]="v.licensePlate">{{ v.licensePlate }} ({{ v.make }} {{ v.model }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>2. Date & Time</h3>
+          <div class="time-grid">
+            <div class="form-group">
+              <label>Start Time</label>
+              <input type="datetime-local" formControlName="startTime">
+            </div>
+            <div class="form-group">
+              <label>End Time</label>
+              <input type="datetime-local" formControlName="endTime">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section summary-section">
+          <h3>3. Summary</h3>
+          <div class="summary-details">
+            <div class="summary-row">
+              <span>Price per hour</span>
+              <span>₹{{ selectedSpot()?.pricePerHour || 0 }}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Estimated Total</span>
+              <span>₹{{ estimatedTotal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+          
+          @if (error()) {
+            <div class="error-msg">
+              <span class="material-icons">error_outline</span>
+              {{ error() }}
+            </div>
+          }
+
+          <button type="submit" class="submit-btn" [disabled]="form.invalid || submitting() || !selectedSpot()">
+            @if (submitting()) {
+              <span class="spinner"></span>
+              Processing...
+            } @else {
+              Confirm Booking
+            }
+          </button>
+        </div>
+      </form>
+
+      <div class="spots-selection">
+        <div class="spots-header">
+          <h3>Select a Spot</h3>
+          @if (selectedLot()) {
+            <span class="lot-badge">{{ selectedLot()?.name }}</span>
+          }
+        </div>
+
+        @if (spotsLoading()) {
+          <div class="spots-grid-loading">
+            @for (i of [1,2,3,4,5,6,7,8,9]; track i) {
+              <app-skeleton-loader type="card" height="60px"></app-skeleton-loader>
+            }
+          </div>
+        } @else {
+          @if (availableSpots().length > 0) {
+            <div class="spots-grid">
+              @for (spot of availableSpots(); track spot.spotId) {
+                <div class="spot-card" 
+                     [class.selected]="selectedSpot()?.spotId === spot.spotId"
+                     (click)="selectSpot(spot)">
+                  <div class="spot-num">{{ spot.spotNumber }}</div>
+                  <div class="spot-type">{{ spot.spotType }}</div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="no-spots">
+              <span class="material-icons">info_outline</span>
+              <p>{{ form.value.lotId ? 'No spots available for this lot' : 'Please select a parking lot first' }}</p>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>

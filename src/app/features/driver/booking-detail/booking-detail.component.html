@@ -1,0 +1,93 @@
+<div class="page-container">
+  <div class="nav-header">
+    <a routerLink="/driver/bookings" class="back-link">
+      <span class="material-icons">arrow_back</span>
+      <span>Back to Bookings</span>
+    </a>
+  </div>
+
+  @if (booking$ | async; as booking) {
+    <div class="detail-card">
+      <div class="card-header">
+        <div class="header-main">
+          <h1>Booking #{{ booking.bookingId }}</h1>
+          <span class="status-badge" [ngClass]="'status-' + booking.status.toLowerCase()">
+            {{ booking.status }}
+          </span>
+        </div>
+        <p class="created-at">Booked on {{ booking.createdAt | date:'medium' }}</p>
+      </div>
+
+      <div class="detail-grid">
+        <div class="info-group">
+          <label>Vehicle Info</label>
+          <div class="info-content">
+            <span class="plate">{{ booking.vehiclePlate }}</span>
+            <span class="type">{{ booking.vehicleType | titlecase }}</span>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Booking Duration</label>
+          <div class="info-content">
+            <div class="time-row">
+              <span class="material-icons">schedule</span>
+              <span>{{ booking.startTime | date:'MMM d, h:mm a' }} - {{ booking.endTime | date:'MMM d, h:mm a' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-group">
+          <label>Payment</label>
+          <div class="info-content">
+            <span class="amount">₹{{ booking.totalAmount | number:'1.2-2' }}</span>
+            <span class="type-tag">{{ booking.bookingType }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (booking.status === 'RESERVED' || booking.status === 'CHECKED_IN') {
+        <div class="actions-footer">
+          @if (booking.status === 'RESERVED') {
+            <button class="btn-danger" (click)="cancelBooking()" [disabled]="processing">
+              <span class="material-icons">cancel</span>
+              Cancel Booking
+            </button>
+            <button class="btn-primary" (click)="checkIn()" [disabled]="processing">
+              <span class="material-icons">login</span>
+              Check In
+            </button>
+          } @else if (booking.status === 'CHECKED_IN') {
+            <button class="btn-primary" (click)="checkOut()" [disabled]="processing">
+              <span class="material-icons">logout</span>
+              Check Out
+            </button>
+          }
+        </div>
+      }
+    </div>
+  } @else if (loading) {
+    <div class="detail-card skeleton-card">
+      <app-skeleton-loader type="title" width="40%"></app-skeleton-loader>
+      <div class="detail-grid">
+        @for (i of [1,2,3]; track i) {
+          <div class="info-group">
+            <app-skeleton-loader type="text" width="30%"></app-skeleton-loader>
+            <app-skeleton-loader type="text" width="70%"></app-skeleton-loader>
+          </div>
+        }
+      </div>
+      <div class="actions-footer">
+        <app-skeleton-loader type="title" width="120px" height="40px"></app-skeleton-loader>
+        <app-skeleton-loader type="title" width="120px" height="40px"></app-skeleton-loader>
+      </div>
+    </div>
+  } @else {
+    <div class="error-state">
+      <span class="material-icons">error_outline</span>
+      <h2>Booking not found</h2>
+      <p>{{ actionError }}</p>
+      <button class="btn-primary" routerLink="/driver/bookings">Go Back</button>
+    </div>
+  }
+</div>

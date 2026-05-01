@@ -1,0 +1,108 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">Broadcast Center</h1>
+    <p class="page-subtitle">Draft and dispatch platform-wide announcements to specific user segments.</p>
+  </div>
+</div>
+
+<div class="broadcast-layout animate-in">
+  <div class="form-container">
+    <div class="card broadcast-card">
+      <form [formGroup]="form" (ngSubmit)="sendBroadcast()">
+        <!-- Target Selection -->
+        <div class="form-section">
+          <h3 class="section-subtitle">1. Choose Target Audience</h3>
+          <div class="target-grid">
+            <label class="target-option" [class.selected]="form.get('target')?.value === 'ALL'">
+              <input type="radio" formControlName="target" value="ALL">
+              <div class="target-icon">
+                <span class="material-icons">public</span>
+              </div>
+              <div class="target-content">
+                <span class="target-name">All Users</span>
+                <span class="target-desc">Drivers & Managers</span>
+              </div>
+              <span class="check-mark material-icons">check_circle</span>
+            </label>
+
+            <label class="target-option" [class.selected]="form.get('target')?.value === 'DRIVER'">
+              <input type="radio" formControlName="target" value="DRIVER">
+              <div class="target-icon">
+                <span class="material-icons">directions_car</span>
+              </div>
+              <div class="target-content">
+                <span class="target-name">Drivers</span>
+                <span class="target-desc">Vehicle owners only</span>
+              </div>
+              <span class="check-mark material-icons">check_circle</span>
+            </label>
+
+            <label class="target-option" [class.selected]="form.get('target')?.value === 'LOT_MANAGER'">
+              <input type="radio" formControlName="target" value="LOT_MANAGER">
+              <div class="target-icon">
+                <span class="material-icons">business_center</span>
+              </div>
+              <div class="target-content">
+                <span class="target-name">Managers</span>
+                <span class="target-desc">Lot operators only</span>
+              </div>
+              <span class="check-mark material-icons">check_circle</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="form-section">
+          <h3 class="section-subtitle">2. Notification Details</h3>
+          
+          <div class="form-field">
+            <label class="label">Headline / Title</label>
+            <input type="text" formControlName="title" class="input-control" placeholder="e.g., Scheduled System Maintenance">
+            <div class="field-error" *ngIf="form.get('title')?.touched && form.get('title')?.errors?.['required']">
+              A title is required for the notification.
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="label">Detailed Message</label>
+            <textarea formControlName="message" rows="8" class="input-control" placeholder="Describe the announcement in detail..."></textarea>
+            <div class="field-error" *ngIf="form.get('message')?.touched && form.get('message')?.errors?.['required']">
+              Please enter the message content.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" (click)="form.reset({target: 'ALL'})" [disabled]="sending">
+            Clear Draft
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || sending">
+            <span class="material-icons" *ngIf="!sending">rocket_launch</span>
+            <span class="spinner-sm" *ngIf="sending"></span>
+            {{ sending ? 'Dispatching...' : 'Publish Broadcast' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sidebar Tips -->
+  <div class="side-panel">
+    <div class="tip-card card-elevated">
+      <div class="tip-header">
+        <span class="material-icons">lightbulb</span>
+        <h4>Broadcasting Best Practices</h4>
+      </div>
+      <ul class="tip-list">
+        <li><strong>Concise Titles:</strong> Keep headlines under 50 characters for better readability on mobile.</li>
+        <li><strong>Multi-Channel:</strong> Notifications are delivered via both App and Email automatically.</li>
+        <li><strong>Scheduling:</strong> Broadcasts are sent instantly. For peak engagement, send during morning or evening hours.</li>
+      </ul>
+    </div>
+
+    <div class="alert-info card">
+      <span class="material-icons">info</span>
+      <p>Broadcasts cannot be edited once dispatched. Please review your draft carefully before publishing.</p>
+    </div>
+  </div>
+</div>

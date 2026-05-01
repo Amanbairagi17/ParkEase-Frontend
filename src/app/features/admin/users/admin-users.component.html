@@ -1,0 +1,130 @@
+<div class="page-header animate-in">
+  <div class="header-main">
+    <h1 class="page-title">User Management</h1>
+    <p class="page-subtitle">Monitor and manage platform users, roles, and account status.</p>
+  </div>
+</div>
+
+<div class="user-management-content animate-in">
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <div class="search-field">
+      <span class="material-icons">search</span>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Search by name, email or ID...">
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="roleFilter === 'ALL'" (click)="onRoleFilterChange('ALL')">All Users</button>
+      <button class="tab-btn" [class.active]="roleFilter === 'DRIVER'" (click)="onRoleFilterChange('DRIVER')">Drivers</button>
+      <button class="tab-btn" [class.active]="roleFilter === 'LOT_MANAGER'" (click)="onRoleFilterChange('LOT_MANAGER')">Managers</button>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-wrapper">
+    <table class="parkease-table">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Basic Info</th>
+          <th>Email Address</th>
+          <th>Platform Role</th>
+          <th>Account Status</th>
+          <th>Joined Date</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td class="font-mono text-xs">#{{ user.userId }}</td>
+          <td>
+            <div class="user-info-cell">
+              <div class="avatar-sm">{{ user.fullName.charAt(0) }}</div>
+              <span class="font-semibold">{{ user.fullName }}</span>
+            </div>
+          </td>
+          <td class="text-secondary">{{ user.email }}</td>
+          <td>
+            <span class="badge" [ngClass]="'badge-' + user.role.toLowerCase()">
+              {{ user.role | titlecase }}
+            </span>
+          </td>
+          <td>
+            <div class="status-indicator" [class.active]="user.isActive">
+              <span class="dot"></span>
+              {{ user.isActive ? 'Active' : 'Suspended' }}
+            </div>
+          </td>
+          <td class="text-muted">{{ user.createdAt | date:'mediumDate' }}</td>
+          <td class="text-right">
+            <div class="action-buttons">
+              <button class="icon-action-btn" (click)="toggleSuspend(user)" [title]="user.isActive ? 'Suspend' : 'Reactivate'" [class.suspending]="user.isActive">
+                <span class="material-icons">{{ user.isActive ? 'block' : 'check_circle' }}</span>
+              </button>
+              <button class="icon-action-btn" (click)="openWarningModal(user)" title="Send Warning">
+                <span class="material-icons">warning_amber</span>
+              </button>
+              <button class="icon-action-btn delete" (click)="deleteUser(user)" title="Delete Account">
+                <span class="material-icons">delete_outline</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        
+        <!-- Empty State -->
+        <tr *ngIf="filteredUsers.length === 0 && !loading">
+          <td colspan="7">
+            <div class="empty-table-state">
+              <span class="material-icons">person_search</span>
+              <p>No users found matching your criteria.</p>
+              <button class="btn btn-ghost btn-sm" (click)="searchTerm=''; roleFilter='ALL'; applyFilters()">Clear Filters</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Loading Shimmer -->
+    <div class="table-loading-shimmer" *ngIf="loading">
+      <div class="shimmer-row" *ngFor="let i of [1,2,3,4,5]"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Warning Modal -->
+<div class="modal-overlay" *ngIf="showWarningModal" (click)="closeWarningModal()">
+  <div class="modal-card animate-in" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <span class="material-icons text-warning">report_problem</span>
+        <h3>Send Warning</h3>
+      </div>
+      <button class="modal-close" (click)="closeWarningModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="target-user-info">
+        <span class="label">Recipient:</span>
+        <span class="value">{{ selectedUser?.fullName }} ({{ selectedUser?.email }})</span>
+      </div>
+      
+      <div class="form-field">
+        <label class="label">Warning Title</label>
+        <input type="text" [(ngModel)]="warningTitle" class="input-control" placeholder="e.g., Policy Violation Notice">
+      </div>
+      
+      <div class="form-field">
+        <label class="label">Reasoning / Message</label>
+        <textarea [(ngModel)]="warningMessage" rows="5" class="input-control" placeholder="Describe the reason for this warning..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeWarningModal()">Discard</button>
+      <button class="btn btn-primary" (click)="sendWarning()" [disabled]="!warningTitle || !warningMessage">
+        <span class="material-icons">send</span>
+        Dispatch Warning
+      </button>
+    </div>
+  </div>
+</div>

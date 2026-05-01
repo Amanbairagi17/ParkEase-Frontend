@@ -1,0 +1,6 @@
+.not-found { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); text-align: center; padding: 2rem; }
+.content { max-width: 400px; }
+.code { font-size: 6rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 0.5rem; opacity: 0.15; }
+h1 { font-size: 1.75rem; font-weight: 600; margin: 0 0 0.75rem; }
+p { color: var(--muted-text); margin: 0 0 2rem; }
+.btn-home { display: inline-block; padding: 0.7rem 1.75rem; background: var(--primary); color: white; border-radius: 8px; text-decoration: none; font-weight: 500; }

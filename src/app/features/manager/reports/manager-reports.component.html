@@ -1,0 +1,12 @@
+<div class="page">
+  <h1>Reports</h1>
+  <p class="subtitle">Generate and export reports for your lots.</p>
+  <div class="reports-grid">
+    <div class="report-card" *ngFor="let r of reports">
+      <span class="material-icons report-icon">{{ r.icon }}</span>
+      <h3>{{ r.title }}</h3>
+      <p>{{ r.desc }}</p>
+      <button class="btn-outline" disabled>Coming soon</button>
+    </div>
+  </div>
+</div>

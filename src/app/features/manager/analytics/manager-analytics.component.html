@@ -1,0 +1,66 @@
+<div class="page">
+  <h1>Analytics</h1>
+  <p class="subtitle">Performance metrics for your parking lots.</p>
+
+  <div *ngIf="loading" class="skeleton-stats">
+    <div class="skeleton-card" *ngFor="let _ of [1,2,3,4]"></div>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary"><span class="material-icons">payments</span></div>
+      <div><div class="stat-val">₹{{ totalRevenue.toFixed(0) }}</div><div class="stat-lab">Total revenue</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><span class="material-icons">check_circle</span></div>
+      <div><div class="stat-val">{{ completedBookings }}</div><div class="stat-lab">Completed bookings</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue"><span class="material-icons">speed</span></div>
+      <div><div class="stat-val">{{ occupancyRate }}%</div><div class="stat-lab">Occupancy rate</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange"><span class="material-icons">cancel</span></div>
+      <div><div class="stat-val">{{ cancelledBookings }}</div><div class="stat-lab">Cancellations</div></div>
+    </div>
+  </div>
+
+  <div class="content-grid" *ngIf="!loading">
+    <!-- Lot breakdown -->
+    <div class="panel">
+      <h2>Lot performance</h2>
+      <div class="lot-perf-list">
+        <div class="lot-perf-row" *ngFor="let l of lots">
+          <div class="lot-perf-info">
+            <span class="lot-perf-name">{{ l.name }}</span>
+            <span class="lot-perf-city">{{ l.city }}</span>
+          </div>
+          <div class="lot-perf-bar-wrap">
+            <div class="lot-perf-bar">
+              <div class="lot-perf-fill" [style.width]="occupancyForLot(l) + '%'"></div>
+            </div>
+            <span class="lot-perf-pct">{{ occupancyForLot(l) }}%</span>
+          </div>
+          <span class="lot-perf-avail">{{ l.availableSpots }}/{{ l.totalSpots }}</span>
+        </div>
+        <div *ngIf="lots.length === 0" class="empty">No lots yet.</div>
+      </div>
+    </div>
+
+    <!-- Booking type breakdown -->
+    <div class="panel">
+      <h2>Booking breakdown</h2>
+      <div class="breakdown-list">
+        <div class="breakdown-row" *ngFor="let row of bookingBreakdown">
+          <span class="bd-label">{{ row.label }}</span>
+          <div class="bd-bar-wrap">
+            <div class="bd-bar">
+              <div class="bd-fill" [class]="row.cls" [style.width]="row.pct + '%'"></div>
+            </div>
+            <span class="bd-val">{{ row.count }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
