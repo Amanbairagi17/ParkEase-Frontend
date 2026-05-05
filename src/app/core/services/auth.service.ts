@@ -130,7 +130,7 @@ export class AuthService {
     if (role === 'MANAGER') return '/manager/dashboard';
     if (role === 'ADMIN') return '/admin/dashboard';
 
-    return '/login';
+    return '/';
   }
 
   getUserIdFromToken(): number | null {

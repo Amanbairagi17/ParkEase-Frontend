@@ -37,109 +37,232 @@
     </div>
   } @else {
     <div class="booking-layout">
-      <form [formGroup]="form" (ngSubmit)="submit()" class="booking-form">
-        <div class="form-section">
-          <h3>1. Location & Vehicle</h3>
-          
-          <div class="form-group">
-            <label>Parking Lot</label>
-            <select formControlName="lotId" (change)="onLotChange()">
-              <option value="">Select a lot</option>
-              @for (lot of lots(); track lot.lotId) {
-                <option [value]="lot.lotId">{{ lot.name }} - {{ lot.city }}</option>
-              }
-            </select>
+      <div class="booking-steps">
+        <!-- Step 1: Parking Lot Search -->
+        <div class="step-card">
+          <div class="step-header">
+            <span class="step-num">1</span>
+            <h3>Select Parking Lot</h3>
           </div>
-
-          <div class="form-group">
-            <label>Vehicle</label>
-            <select formControlName="vehiclePlate">
-              <option value="">Select your vehicle</option>
-              @for (v of vehicles(); track v.vehicleId) {
-                <option [value]="v.licensePlate">{{ v.licensePlate }} ({{ v.make }} {{ v.model }})</option>
-              }
-            </select>
+          <div class="search-container">
+            <div class="search-input-wrapper">
+              <span class="material-icons">search</span>
+              <input type="text" 
+                     [formControl]="searchControl"
+                     (focus)="openSearch()"
+                     (blur)="handleSearchBlur()"
+                     placeholder="Search by lot name or city..."
+                     class="search-input">
+            </div>
+            @if (showDropdown && parkingLots.length > 0) {
+              <div class="dropdown">
+                @for (lot of parkingLots; track lot.lotId) {
+                  <div class="dropdown-item" (mousedown)="selectParking(lot)">
+                    <div class="lot-name">{{ lot.name }}</div>
+                    <div class="lot-location">{{ lot.address || lot.city }}</div>
+                  </div>
+                }
+              </div>
+            }
+            @if (showDropdown && !searchLoading() && parkingLots.length === 0 && searchControl.value) {
+              <div class="dropdown">
+                <div class="dropdown-item">
+                  <div class="lot-name">No results found</div>
+                </div>
+              </div>
+            }
           </div>
+          @if (selectedLot()) {
+            <div class="selected-lot-card">
+              <span class="material-icons">local_parking</span>
+              <div class="lot-meta">
+                <strong>{{ selectedLot()?.name }}</strong>
+                <span>{{ selectedLot()?.address }}</span>
+              </div>
+              <button class="btn-change" (click)="clearLot()">Change</button>
+            </div>
+          }
         </div>
 
-        <div class="form-section">
-          <h3>2. Date & Time</h3>
-          <div class="time-grid">
-            <div class="form-group">
-              <label>Start Time</label>
-              <input type="datetime-local" formControlName="startTime">
-            </div>
-            <div class="form-group">
-              <label>End Time</label>
-              <input type="datetime-local" formControlName="endTime">
-            </div>
+        <!-- Step 2: Vehicle & Pricing Type -->
+        <div class="step-card" [class.disabled]="!selectedLot()">
+          <div class="step-header">
+            <span class="step-num">2</span>
+            <h3>Vehicle & Plan</h3>
           </div>
+          <form [formGroup]="form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Your Vehicle</label>
+                <div class="vehicle-select">
+                  <input type="text"
+                         [value]="vehicleQuery()"
+                         (input)="updateVehicleSearch($any($event.target).value); openVehicleDropdown()"
+                         (focus)="openVehicleDropdown(); updateVehicleSearch(vehicleQuery())"
+                         (blur)="handleVehicleBlur()"
+                         placeholder="Search vehicle by plate or type..."
+                         class="vehicle-input"
+                         autocomplete="off">
+                  <input type="hidden" formControlName="vehiclePlate">
+                  @if (vehicleOpen()) {
+                    <div class="vehicle-results">
+                      @if (filteredVehicles().length > 0) {
+                        @for (v of filteredVehicles(); track v.vehicleId) {
+                          <div class="vehicle-item" (mousedown)="selectVehicle(v)">
+                            <div class="vehicle-plate">{{ v.licensePlate }}</div>
+                            <div class="vehicle-type">{{ v.vehicleType }}</div>
+                          </div>
+                        }
+                      } @else if (vehicleQuery()) {
+                        <div class="vehicle-empty">
+                          <span class="material-icons">search_off</span>
+                          No vehicles found
+                        </div>
+                      } @else {
+                        <div class="vehicle-empty">
+                          <span class="material-icons">directions_car</span>
+                          Start typing to search vehicles
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+                @if (vehicles().length === 0) {
+                  <div class="field-note">No vehicles found. Add a vehicle before booking.</div>
+                }
+              </div>
+              <div class="form-group">
+                <label>Pricing Model</label>
+                <div class="type-selector">
+                  <button type="button" 
+                          [class.active]="form.value.pricingType === 'HOURLY'"
+                          (click)="form.patchValue({pricingType: 'HOURLY'})">Hourly</button>
+                  <button type="button" 
+                          [class.active]="form.value.pricingType === 'DAILY'"
+                          (click)="form.patchValue({pricingType: 'DAILY'})">Daily</button>
+                </div>
+              </div>
+            </div>
+          </form>
         </div>
 
-        <div class="form-section summary-section">
-          <h3>3. Summary</h3>
-          <div class="summary-details">
-            <div class="summary-row">
-              <span>Price per hour</span>
-              <span>₹{{ selectedSpot()?.pricePerHour || 0 }}</span>
+        <!-- Step 3: Time Selection -->
+        <div class="step-card" [class.disabled]="!form.value.vehiclePlate">
+          <div class="step-header">
+            <span class="step-num">3</span>
+            <h3>Booking Time</h3>
+          </div>
+          <form [formGroup]="form">
+            <div class="time-inputs">
+              <div class="form-group">
+                <label>Start Time</label>
+                <input type="datetime-local" formControlName="startTime" [min]="minDate">
+              </div>
+              <div class="form-group">
+                <label>End Time</label>
+                <input type="datetime-local" formControlName="endTime" [min]="form.value.startTime || minDate">
+              </div>
             </div>
-            <div class="summary-row total">
-              <span>Estimated Total</span>
-              <span>₹{{ estimatedTotal | number:'1.2-2' }}</span>
+          </form>
+          @if (durationText) {
+            <div class="duration-info" [class.invalid]="form.errors?.['invalidRange']">
+              <span class="material-icons">timer</span>
+              {{ durationText }}
             </div>
+          }
+        </div>
+
+        <!-- Step 4: Spot Selection -->
+        <div class="step-card" [class.disabled]="!form.value.startTime || !form.value.endTime">
+          <div class="step-header">
+            <span class="step-num">4</span>
+            <h3>Choose a Spot</h3>
           </div>
           
+          @if (spotsLoading()) {
+            <div class="spots-loader">
+              @for (i of [1,2,3,4,5,6]; track i) {
+                <div class="spot-skeleton"></div>
+              }
+            </div>
+          } @else {
+            <div class="spots-grid">
+              @for (spot of availableSpots(); track spot.spotId) {
+                <div class="spot-cell" 
+                     [class.selected]="selectedSpot()?.spotId === spot.spotId"
+                     [ngClass]="{
+                       'green': getSpotStatus(spot) === 'AVAILABLE',
+                       'yellow': getSpotStatus(spot) === 'AVAILABLE_SOON',
+                       'red': getSpotStatus(spot) === 'BLOCKED'
+                     }"
+                     [class.disabled]="getSpotStatus(spot) === 'BLOCKED'"
+                     (click)="getSpotStatus(spot) !== 'BLOCKED' && selectSpot(spot)">
+                  <div class="spot-label">{{ spot.spotNumber }}</div>
+                  <div class="spot-sub">{{ spot.spotType }}</div>
+                  <div class="spot-rate">₹{{ spot.pricePerHour }}/hr</div>
+                  @if (getSpotStatus(spot) === 'AVAILABLE_SOON') {
+                    <div class="spot-availability">Available Soon</div>
+                  }
+                </div>
+              }
+              @if (availableSpots().length === 0 && selectedLot() && form.value.vehiclePlate && form.value.startTime && form.value.endTime && !spotsLoading()) {
+                <div class="empty-spots">No available spots for the selected criteria.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right Sidebar: Summary & Action -->
+      <div class="booking-sidebar">
+        <div class="summary-card">
+          <h3>Booking Summary</h3>
+          <div class="summary-content">
+            <div class="summary-item">
+              <span class="label">Location</span>
+              <span class="value">{{ selectedLot()?.name || '--' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Vehicle</span>
+              <span class="value">{{ form.value.vehiclePlate || '--' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Duration</span>
+              <span class="value">{{ durationText || '--' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Pricing</span>
+              <span class="value">{{ form.value.pricingType }} Plan</span>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="price-row">
+              <span class="label">Total Amount</span>
+              <span class="amount">₹{{ estimatedTotal | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          @if (showDailySuggestion) {
+            <div class="tip-box" (click)="form.patchValue({pricingType: 'DAILY'})">
+              <span class="material-icons">lightbulb</span>
+              <p>Long stay detected! Switch to Daily for better rates.</p>
+            </div>
+          }
+
           @if (error()) {
-            <div class="error-msg">
-              <span class="material-icons">error_outline</span>
+            <div class="error-box">
+              <span class="material-icons">warning</span>
               {{ error() }}
             </div>
           }
 
-          <button type="submit" class="submit-btn" [disabled]="form.invalid || submitting() || !selectedSpot()">
-            @if (submitting()) {
-              <span class="spinner"></span>
-              Processing...
-            } @else {
-              Confirm Booking
-            }
+          <button class="confirm-btn" 
+                  [disabled]="!canConfirm"
+                  (click)="submit()">
+            {{ submitting() ? 'Creating Booking...' : 'Confirm & Pay' }}
           </button>
         </div>
-      </form>
-
-      <div class="spots-selection">
-        <div class="spots-header">
-          <h3>Select a Spot</h3>
-          @if (selectedLot()) {
-            <span class="lot-badge">{{ selectedLot()?.name }}</span>
-          }
-        </div>
-
-        @if (spotsLoading()) {
-          <div class="spots-grid-loading">
-            @for (i of [1,2,3,4,5,6,7,8,9]; track i) {
-              <app-skeleton-loader type="card" height="60px"></app-skeleton-loader>
-            }
-          </div>
-        } @else {
-          @if (availableSpots().length > 0) {
-            <div class="spots-grid">
-              @for (spot of availableSpots(); track spot.spotId) {
-                <div class="spot-card" 
-                     [class.selected]="selectedSpot()?.spotId === spot.spotId"
-                     (click)="selectSpot(spot)">
-                  <div class="spot-num">{{ spot.spotNumber }}</div>
-                  <div class="spot-type">{{ spot.spotType }}</div>
-                </div>
-              }
-            </div>
-          } @else {
-            <div class="no-spots">
-              <span class="material-icons">info_outline</span>
-              <p>{{ form.value.lotId ? 'No spots available for this lot' : 'Please select a parking lot first' }}</p>
-            </div>
-          }
-        }
       </div>
     </div>
   }

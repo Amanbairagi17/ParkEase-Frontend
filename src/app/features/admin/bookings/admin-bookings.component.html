@@ -51,7 +51,7 @@
             </span>
           </td>
           <td class="text-secondary">{{ b.startTime | date:'MMM d, y • h:mm a' }}</td>
-          <td class="font-semibold">₹{{ b.totalAmount.toFixed(0) }}</td>
+          <td class="font-semibold">{{ b.totalAmount | currency:'INR':'symbol':'1.0-0' }}</td>
           <td class="text-right">
             <div class="action-buttons">
               @if (b.status === 'RESERVED') {

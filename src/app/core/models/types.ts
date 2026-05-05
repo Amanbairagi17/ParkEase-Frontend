@@ -1,3 +1,4 @@
+
 export interface User {
   userId: string;
   fullName: string;
@@ -63,24 +64,41 @@ export interface Booking {
   bookingId: string;
   userId: string;
   lotId: string;
+  lotName?: string;
   spotId: string;
   vehiclePlate: string;
   vehicleType: 'TWO_WHEELER' | 'FOUR_WHEELER' | 'THREE_WHEELER' | 'HEAVY';
   bookingType: 'PRE_BOOKING' | 'WALK_IN';
+  pricingType: 'HOURLY' | 'DAILY';
   startTime: string;
   endTime: string;
-  status: 'RESERVED' | 'CHECKED_IN' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
+  status: 'RESERVED' | 'ACTIVE' | 'CHECKED_IN' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
+  isPaid: boolean;
+  duration?: string;
   totalAmount: number;
+  amount?: number;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface BookingRequest {
+  userId: number;
+  lotId: number;
+  spotId: number;
+  vehiclePlate: string;
+  vehicleType: 'TWO_WHEELER' | 'FOUR_WHEELER' | 'THREE_WHEELER' | 'HEAVY';
+  bookingType: 'PRE_BOOKING' | 'WALK_IN';
+  pricingType: 'HOURLY' | 'DAILY';
+  startTime: string;
+  endTime: string;
+}
+
 export interface Payment {
-  paymentId: string;
-  bookingId: string;
-  userId: string;
+  paymentId: number;
+  bookingId: number;
+  userId: number;
   amount: number;
-  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
+  status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
   mode: 'CARD' | 'UPI' | 'WALLET' | 'CASH';
   transactionId?: string;
   currency: string;

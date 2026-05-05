@@ -53,11 +53,11 @@
                   <div class="plate-box">{{ booking.vehiclePlate }}</div>
                   <div class="lot-ref">
                     <span class="material-icons">location_on</span>
-                    Parking Lot #{{ booking.lotId }}
+                    <span>{{ booking.lotName || ('Parking Lot #' + booking.lotId) }}</span>
                   </div>
                 </div>
                 <div class="status-box">
-                  <span class="badge" [ngClass]="'badge-' + booking.status.toLowerCase()">
+                  <span [ngClass]="getStatusClass(booking.status)">
                     {{ booking.status }}
                   </span>
                 </div>
@@ -73,10 +73,13 @@
                     <span class="material-icons">history</span>
                     <span>{{ booking.startTime | date:'h:mm a' }}</span>
                   </div>
+                  <div class="meta-item">
+                    <span class="material-icons">timer</span>
+                    <span>{{ getDuration(booking) }}</span>
+                  </div>
                 </div>
                 <div class="price-box">
-                  <span class="currency">₹</span>
-                  <span class="amount">{{ booking.totalAmount | number:'1.0-0' }}</span>
+                  <span class="amount">{{ (booking.amount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-0' }}</span>
                 </div>
               </div>
               

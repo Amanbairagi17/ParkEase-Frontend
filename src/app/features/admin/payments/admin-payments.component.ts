@@ -17,7 +17,7 @@ export class AdminPaymentsComponent implements OnInit {
   payments: Payment[] = [];
   loading = true;
 
-  get revenue(): number { return this.payments.filter(p => p.status === 'COMPLETED').reduce((s, p) => s + p.amount, 0); }
+  get revenue(): number { return this.payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount || 0), 0); }
   get pending(): number { return this.payments.filter(p => p.status === 'PENDING').length; }
   get refunded(): number { return this.payments.filter(p => p.status === 'REFUNDED').length; }
 

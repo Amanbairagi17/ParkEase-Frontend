@@ -10,24 +10,30 @@ export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, nex
   const addToken = (r: HttpRequest<unknown>, t: string) =>
     r.clone({ setHeaders: { Authorization: `Bearer ${t}` } });
 
-  const authReq = token ? addToken(req, token) : req;
+  const isAuthRequest = req.url.includes('/auth/login') || 
+                        req.url.includes('/auth/register') || 
+                        req.url.includes('/auth/refresh');
+
+  const authReq = (token && !isAuthRequest) ? addToken(req, token) : req;
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && auth.isLoggedIn) {
+      // If 401 and not already an auth/refresh request
+      if (error.status === 401 && auth.isLoggedIn && !isAuthRequest) {
         return auth.refreshToken().pipe(
           switchMap(res => {
             const newToken = (res as any).accessToken || (res as any).token;
             if (newToken) {
+              // Note: persist will update the state and trigger subscribers
               (auth as any).persist(auth.currentUser, newToken, res.refreshToken);
               return next(addToken(req, newToken));
             }
             auth.logout();
             return throwError(() => error);
           }),
-          catchError(() => {
+          catchError((err) => {
             auth.logout();
-            return throwError(() => error);
+            return throwError(() => err);
           })
         );
       }

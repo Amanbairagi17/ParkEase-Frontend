@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, OnDestroy, HostListener, Renderer2 } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,18 +23,14 @@ export class AppShellComponent implements OnInit, OnDestroy {
   @Input() navItems: NavItem[] = [];
   auth = inject(AuthService);
   router = inject(Router);
-  renderer = inject(Renderer2);
 
   private destroy$ = new Subject<void>();
   sidebarOpen = false;
-  isDarkMode = false;
 
   ngOnInit(): void {
-    // Load theme preference
-    const savedTheme = localStorage.getItem('parkease.theme');
-    if (savedTheme === 'dark') {
-      this.enableDarkMode();
-    }
+    // Force light theme (dark mode removed)
+    document.body.classList.remove('dark');
+    localStorage.removeItem('parkease.theme');
 
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
@@ -47,26 +43,6 @@ export class AppShellComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  toggleDarkMode(): void {
-    if (this.isDarkMode) {
-      this.disableDarkMode();
-    } else {
-      this.enableDarkMode();
-    }
-  }
-
-  private enableDarkMode(): void {
-    this.isDarkMode = true;
-    this.renderer.addClass(document.body, 'dark');
-    localStorage.setItem('parkease.theme', 'dark');
-  }
-
-  private disableDarkMode(): void {
-    this.isDarkMode = false;
-    this.renderer.removeClass(document.body, 'dark');
-    localStorage.setItem('parkease.theme', 'light');
   }
 
   @HostListener('document:keydown', ['$event'])

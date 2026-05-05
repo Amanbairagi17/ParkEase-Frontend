@@ -35,8 +35,8 @@ export class AdminDashboardComponent implements OnInit {
 
   get totalRevenue(): number {
     return this.payments
-      .filter(p => p?.status === 'COMPLETED')
-      .reduce((s, p) => s + (p?.amount || 0), 0);
+      .filter(p => p?.status === 'SUCCESS')
+      .reduce((s, p) => s + Number(p?.amount || 0), 0);
   }
 
   ngOnInit(): void {

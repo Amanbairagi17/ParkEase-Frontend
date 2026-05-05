@@ -29,9 +29,9 @@ export class VehicleService {
     return this.http.get<Vehicle>(`${this.API}/getById/${vehicleId}`);
   }
 
-  // GET /api/vehicle/getVehiclesByOwner/{ownerId}
+  // GET /api/vehicle/user/{ownerId}
   getByOwner(ownerId: string | number): Observable<Vehicle[]> {
-    return this.http.get<Vehicle[]>(`${this.API}/getVehiclesByOwner/${ownerId}`);
+    return this.http.get<Vehicle[]>(`${this.API}/user/${ownerId}`);
   }
 
   // GET /api/vehicle/getByLicensePlate/{licensePlate}

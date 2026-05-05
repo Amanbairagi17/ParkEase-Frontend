@@ -27,7 +27,7 @@ export class AdminAnalyticsComponent implements OnInit {
     return [
       { label: 'Total bookings', value: this.bookings.length, icon: 'event', cls: 'primary' },
       { label: 'Active now', value: this.bookings.filter(b => b.status === 'CHECKED_IN' || b.status === 'RESERVED').length, icon: 'sensors', cls: 'green' },
-      { label: 'Total revenue', value: '₹' + this.payments.filter(p => p.status === 'COMPLETED').reduce((s, p) => s + p.amount, 0).toFixed(0), icon: 'payments', cls: 'blue' },
+      { label: 'Total revenue', value: '₹' + this.payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount || 0), 0).toFixed(0), icon: 'payments', cls: 'blue' },
       { label: 'Registered vehicles', value: this.vehicles.length, icon: 'directions_car', cls: 'orange' },
       { label: 'Pending payments', value: this.payments.filter(p => p.status === 'PENDING').length, icon: 'pending', cls: 'purple' },
       { label: 'Cancellations', value: this.bookings.filter(b => b.status === 'CANCELLED').length, icon: 'cancel', cls: 'red' },

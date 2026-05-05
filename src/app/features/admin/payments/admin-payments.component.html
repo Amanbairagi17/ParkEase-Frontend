@@ -64,7 +64,7 @@
           <td class="text-secondary">{{ (p.paidAt || '') | date:'MMM d, y' }}</td>
           <td class="text-right">
             <div class="action-buttons">
-              <button *ngIf="p.status === 'COMPLETED'" (click)="refund(p)" class="btn btn-ghost btn-sm">
+              <button *ngIf="p.status === 'SUCCESS'" (click)="refund(p)" class="btn btn-ghost btn-sm">
                 <span class="material-icons">undo</span>
                 Issue Refund
               </button>

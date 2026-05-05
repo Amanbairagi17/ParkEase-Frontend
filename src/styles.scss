@@ -42,23 +42,21 @@
   --radius-xl: 24px;
   
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Aliases for compatibility with legacy components */
+  --bg: var(--bg-primary);
+  --text: var(--text-primary);
+  --text-main: var(--text-primary);
+  --muted-text: var(--text-muted);
+  --danger: var(--error);
+  --primary-glow: var(--primary-soft);
+  --surface-border: var(--border);
 }
 
-/* Dark Theme Overrides */
-body.dark {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --surface: #1e293b;
-  --surface-hover: #334155;
-  --border: #334155;
-  --border-focus: #818cf8;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+/* ── Responsive Mixins & Utilities ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  html { font-size: 14px; }
+  .container { padding: 0 1rem; }
 }
 
 /* ── Base Reset ──────────────────────────────────────────────────────────── */
@@ -120,7 +118,8 @@ ul { list-style: none; }
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-sm);
 }
 
@@ -236,7 +235,6 @@ ul { list-style: none; }
   color: var(--text-primary);
 }
 
-/* ── Badges & Status ────────────────────────────────────────────────────── */
 
 .badge {
   display: inline-flex;
@@ -259,7 +257,6 @@ ul { list-style: none; }
 .badge-driver { background: rgba(99, 102, 241, 0.1); color: #6366f1; border: 1px solid rgba(99, 102, 241, 0.2); }
 .badge-refunded { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
 
-/* ── Animations ─────────────────────────────────────────────────────────── */
 
 .animate-in {
   animation: slideUp 0.4s cubic-bezier(0, 0, 0.2, 1) forwards;
@@ -270,7 +267,6 @@ ul { list-style: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Material Icons Fix ─────────────────────────────────────────────────── */
 .material-icons {
   font-size: 20px;
   display: inline-flex;

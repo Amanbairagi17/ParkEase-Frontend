@@ -19,7 +19,7 @@
           <span class="plate">{{ b.vehiclePlate }}</span>
           <span class="status-badge status-{{ b.status }}">{{ b.status }}</span>
           <span class="date">{{ b.startTime | date:'MMM d, h:mm a' }}</span>
-          <span class="amount">₹{{ b.totalAmount.toFixed(0) }}</span>
+          <span class="amount">{{ b.totalAmount | currency:'INR':'symbol':'1.0-0' }}</span>
           <div class="row-actions">
             @if (b.status === 'RESERVED') {
               <button (click)="checkIn(b)" class="btn-xs">Check in</button>

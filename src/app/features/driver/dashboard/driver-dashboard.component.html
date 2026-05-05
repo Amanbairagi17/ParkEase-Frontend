@@ -4,7 +4,7 @@
       <h1>Hello, {{ firstName }}!</h1>
       <p>Welcome back to ParkEase. Here's what's happening today.</p>
     </div>
-    <button routerLink="/driver/new-booking" class="quick-book-btn">
+    <button routerLink="/driver/bookings/new" class="quick-book-btn">
       <span class="material-icons">add</span>
       Quick Book
     </button>
@@ -69,7 +69,7 @@
               <div class="empty-state">
                 <span class="material-icons">event_busy</span>
                 <p>No active bookings</p>
-                <button routerLink="/driver/new-booking" class="btn-text">Book now</button>
+                <button routerLink="/driver/bookings/new" class="btn-text">Book now</button>
               </div>
             } @else {
               @for (booking of activeBookings; track booking.bookingId) {
@@ -90,7 +90,7 @@
                       <span class="material-icons">schedule</span>
                       {{ booking.startTime | date:'MMM d, h:mm a' }}
                     </span>
-                    <span class="price">₹{{ booking.totalAmount }}</span>
+                    <span class="price">{{ (booking.amount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-0' }}</span>
                   </div>
                 </div>
               }

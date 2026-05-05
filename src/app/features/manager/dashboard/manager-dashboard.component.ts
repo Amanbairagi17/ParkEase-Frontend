@@ -24,7 +24,7 @@ export class ManagerDashboardComponent implements OnInit {
   loading = true;
 
   get activeBookings(): Booking[] { return this.allBookings.filter(b => b.status === 'RESERVED' || b.status === 'CHECKED_IN'); }
-  get revenue(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + b.totalAmount, 0); }
+  get revenue(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + (b.totalAmount ?? 0), 0); }
   get occupancy(): number {
     const total = this.lots.reduce((s, l) => s + l.totalSpots, 0);
     const avail = this.lots.reduce((s, l) => s + l.availableSpots, 0);
@@ -44,3 +44,4 @@ export class ManagerDashboardComponent implements OnInit {
     });
   }
 }
+

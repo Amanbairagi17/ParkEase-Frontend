@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, map, interval, startWith, switchMap, catchError, of, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map, interval, startWith, switchMap, catchError, of, Subscription, distinctUntilChanged } from 'rxjs';
 import { environment } from '@env/environment';
 import { Notification } from '../models/types';
 import { AuthService } from './auth.service';
@@ -24,8 +24,12 @@ export class NotificationService {
 
   constructor() {
     // Automatically fetch notifications when user is logged in
-    this.authService.user$.subscribe(user => {
-      if (user) {
+    // Only trigger if the user ID actually changes or if we go from null to user
+    this.authService.user$.pipe(
+      map(user => user ? JSON.stringify(user) : null),
+      distinctUntilChanged()
+    ).subscribe(userJson => {
+      if (userJson) {
         this.refresh();
         this.startPolling();
       } else {

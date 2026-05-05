@@ -64,7 +64,7 @@
         <div class="booking-row" *ngFor="let b of activeBookings.slice(0,6)">
           <span class="plate">{{ b.vehiclePlate }}</span>
           <span class="status-badge status-{{ b.status }}">{{ b.status }}</span>
-          <span class="amount">₹{{ b.totalAmount.toFixed(0) }}</span>
+          <span class="amount">{{ b.totalAmount | currency:'INR':'symbol':'1.0-0' }}</span>
         </div>
         <div *ngIf="activeBookings.length === 0" class="empty">No active bookings.</div>
       </div>

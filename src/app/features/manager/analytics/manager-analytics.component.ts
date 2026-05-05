@@ -23,7 +23,7 @@ export class ManagerAnalyticsComponent implements OnInit {
   allBookings: Booking[] = [];
   loading = true;
 
-  get totalRevenue(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + b.totalAmount, 0); }
+  get totalRevenue(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + (b.totalAmount ?? 0), 0); }
   get completedBookings(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').length; }
   get cancelledBookings(): number { return this.allBookings.filter(b => b.status === 'CANCELLED').length; }
   get occupancyRate(): number {
@@ -61,3 +61,4 @@ export class ManagerAnalyticsComponent implements OnInit {
     });
   }
 }
+

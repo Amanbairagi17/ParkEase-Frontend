@@ -23,6 +23,11 @@ export class ParkingLotService {
   private http = inject(HttpClient);
   private readonly API = `${environment.apiUrl}/parking-lots`;
 
+  private toArray(res: any): ParkingLot[] {
+    const value = res?.data ?? res ?? [];
+    return Array.isArray(value) ? value : [];
+  }
+
   // POST /api/parking-lots  (MANAGER/ADMIN)
   create(payload: ParkingLotRequest): Observable<ParkingLot> {
     return this.http.post<ParkingLot>(this.API, payload);
@@ -35,7 +40,8 @@ export class ParkingLotService {
 
   // GET /api/parking-lots/city/{city}
   getByCity(city: string): Observable<ParkingLot[]> {
-    return this.http.get<ParkingLot[]>(`${this.API}/city/${encodeURIComponent(city)}`);
+    return this.http.get<any>(`${this.API}/city/${encodeURIComponent(city)}`)
+      .pipe(map(res => this.toArray(res)));
   }
 
   // GET /api/parking-lots/nearby?latitude=&longitude=&radiusKm=
@@ -44,19 +50,21 @@ export class ParkingLotService {
       .set('latitude', latitude.toString())
       .set('longitude', longitude.toString())
       .set('radiusKm', radiusKm.toString());
-    return this.http.get<ParkingLot[]>(`${this.API}/nearby`, { params });
+    return this.http.get<any>(`${this.API}/nearby`, { params })
+      .pipe(map(res => this.toArray(res)));
   }
 
   // GET /api/parking-lots/manager/{managerId}  (MANAGER/ADMIN)
   getByManager(managerId: string | number): Observable<ParkingLot[]> {
   return this.http.get<any>(`${this.API}/manager/${managerId}`)
-    .pipe(map(res => res?.data ?? res ?? []));
+    .pipe(map(res => this.toArray(res)));
 }
 
   // GET /api/parking-lots/search?keyword=
   search(keyword: string): Observable<ParkingLot[]> {
-    const params = new HttpParams().set('keyword', keyword);
-    return this.http.get<ParkingLot[]>(`${this.API}/search`, { params });
+    const params = new HttpParams().set('search', keyword);
+    return this.http.get<any>(this.API, { params })
+      .pipe(map(res => this.toArray(res)));
   }
 
   // PUT /api/parking-lots/{lotId}  (MANAGER/ADMIN)

@@ -61,12 +61,12 @@ export class DriverDashboardComponent implements OnInit {
       finalize(() => this.loading.set(false))
     ).subscribe(({ bookings, vehicles, payments }) => {
       this.allBookings$ = of(bookings);
-      this.activeBookings$ = of(bookings.filter(b => b.status === 'RESERVED' || b.status === 'CHECKED_IN'));
+      this.activeBookings$ = of(bookings.filter(b => b.status === 'RESERVED' || b.status === 'ACTIVE' || b.status === 'CHECKED_IN'));
       
       this.stats.set({
         totalBookings: bookings.length,
         activeVehicles: vehicles.length,
-        totalSpent: payments.filter(p => p.status === 'COMPLETED').reduce((s, p) => s + p.amount, 0)
+        totalSpent: payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount || 0), 0)
       });
     });
   }

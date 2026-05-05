@@ -35,6 +35,7 @@
                 <th>Date</th>
                 <th>Amount</th>
                 <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -46,9 +47,20 @@
                   <td class="date">{{ p.paidAt | date:'mediumDate' }}</td>
                   <td class="amount">₹{{ p.amount | number:'1.2-2' }}</td>
                   <td>
-                    <span class="status-badge" [ngClass]="getStatusClass(p.status)">
+                    <span [ngClass]="getStatusClass(p.status)">
                       {{ p.status }}
                     </span>
+                  </td>
+                  <td>
+                    @if (p.status === 'PENDING') {
+                      <button class="pay-btn"
+                              (click)="payNow(p)"
+                              [disabled]="processing()">
+                        {{ processing() ? 'Processing...' : 'Pay Now' }}
+                      </button>
+                    } @else {
+                      <span class="paid-label">Paid</span>
+                    }
                   </td>
                 </tr>
               }
