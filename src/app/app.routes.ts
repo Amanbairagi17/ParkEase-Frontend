@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { authGuard, guestGuard, roleGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // ─── Public ───────────────────────────────────────────────
   {
     path: '',
     loadComponent: () => import('./features/public/landing/landing.component').then(m => m.LandingComponent)
@@ -185,6 +184,10 @@ export const routes: Routes = [
   },
 
   // ─── Fallback ─────────────────────────────────────────────
+  {
+    path: 'receipts',
+    loadChildren: () => import('./features/receipt/receipt.routes').then(m => m.receiptRoutes)
+  },
   {
     path: '**',
     loadComponent: () => import('./features/not-found/not-found.component').then(m => m.NotFoundComponent)

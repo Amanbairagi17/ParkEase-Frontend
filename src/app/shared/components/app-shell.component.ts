@@ -31,30 +31,53 @@ export class AppShellComponent implements OnInit, OnDestroy {
     // Force light theme (dark mode removed)
     document.body.classList.remove('dark');
     localStorage.removeItem('parkease.theme');
+    document.body.classList.add('app-shell-active');
 
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      this.sidebarOpen = false;
+      this.setSidebarOpen(false);
     });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    document.body.classList.remove('app-shell-active');
+    document.body.classList.remove('sidebar-open');
   }
 
   @HostListener('document:keydown', ['$event'])
   onEsc(event: Event): void {
     if ((event as KeyboardEvent).key === 'Escape') {
-      this.sidebarOpen = false;
+      this.setSidebarOpen(false);
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth >= 1024 && this.sidebarOpen) {
+      this.setSidebarOpen(false);
     }
   }
 
   get user(): User | null { return this.auth.currentUser; }
   get initials(): string {
     return this.user?.fullName?.split(' ').map(n => n[0]).slice(0, 2).join('') || 'U';
+  }
+
+  openSidebar(): void {
+    this.setSidebarOpen(true);
+  }
+
+  closeSidebar(): void {
+    this.setSidebarOpen(false);
+  }
+
+  private setSidebarOpen(isOpen: boolean): void {
+    this.sidebarOpen = isOpen;
+    document.body.classList.toggle('sidebar-open', isOpen);
   }
 
   logout(): void { this.auth.logout(); }

@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
+import { Observable, throwError } from 'rxjs';
 import { Vehicle } from '../models/types';
+import { guardUserId } from '../utils/user-id';
+import { ApiService } from './api.service';
 
 export interface VehicleRequest {
   ownerId: string | number;
@@ -17,10 +18,15 @@ export interface VehicleRequest {
 @Injectable({ providedIn: 'root' })
 export class VehicleService {
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/vehicle`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/vehicle');
 
   // POST /api/vehicle/register
   register(payload: VehicleRequest): Observable<Vehicle> {
+    const safeOwnerId = guardUserId(payload.ownerId, 'VehicleService.register');
+    if (safeOwnerId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
     return this.http.post<Vehicle>(`${this.API}/register`, payload);
   }
 
@@ -31,7 +37,11 @@ export class VehicleService {
 
   // GET /api/vehicle/user/{ownerId}
   getByOwner(ownerId: string | number): Observable<Vehicle[]> {
-    return this.http.get<Vehicle[]>(`${this.API}/user/${ownerId}`);
+    const safeOwnerId = guardUserId(ownerId, 'VehicleService.getByOwner');
+    if (safeOwnerId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<Vehicle[]>(`${this.API}/user/${safeOwnerId}`);
   }
 
   // GET /api/vehicle/getByLicensePlate/{licensePlate}

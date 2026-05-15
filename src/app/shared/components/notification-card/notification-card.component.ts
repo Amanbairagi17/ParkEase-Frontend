@@ -31,7 +31,7 @@ import { Notification } from '../../../core/models/types';
             </span>
             <span class="channel-tag">
               <span class="material-icons">{{ getChannelIcon(notification.channel) }}</span>
-              {{ notification.channel === 'IN_APP' ? 'In-App' : (notification.channel | titlecase) }}
+              {{ notification.channel === 'APP' || notification.channel === 'IN_APP' ? 'In-App' : (notification.channel | titlecase) }}
             </span>
           </div>
 

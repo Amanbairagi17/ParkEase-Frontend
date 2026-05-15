@@ -26,20 +26,23 @@ export class AdminAnalyticsComponent implements OnInit {
   get stats() {
     return [
       { label: 'Total bookings', value: this.bookings.length, icon: 'event', cls: 'primary' },
-      { label: 'Active now', value: this.bookings.filter(b => b.status === 'CHECKED_IN' || b.status === 'RESERVED').length, icon: 'sensors', cls: 'green' },
+      { label: 'Active now', value: this.bookings.filter(b => [
+        'RESERVED',
+        'ACTIVE'
+      ].includes(b.status)).length, icon: 'sensors', cls: 'green' },
       { label: 'Total revenue', value: '₹' + this.payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount || 0), 0).toFixed(0), icon: 'payments', cls: 'blue' },
       { label: 'Registered vehicles', value: this.vehicles.length, icon: 'directions_car', cls: 'orange' },
-      { label: 'Pending payments', value: this.payments.filter(p => p.status === 'PENDING').length, icon: 'pending', cls: 'purple' },
+
       { label: 'Cancellations', value: this.bookings.filter(b => b.status === 'CANCELLED').length, icon: 'cancel', cls: 'red' },
     ];
   }
 
   get bookingBreakdown() {
     const total = this.bookings.length || 1;
-    return ['COMPLETED', 'RESERVED', 'CHECKED_IN', 'CANCELLED', 'EXPIRED'].map(s => ({
+    return ['COMPLETED', 'RESERVED', 'ACTIVE', 'CANCELLED'].map(s => ({
       label: s, count: this.bookings.filter(b => b.status === s).length,
       pct: Math.round((this.bookings.filter(b => b.status === s).length / total) * 100),
-      cls: ({ COMPLETED: 'green', RESERVED: 'blue', CHECKED_IN: 'green', CANCELLED: 'red', EXPIRED: 'yellow' } as any)[s] || 'gray'
+      cls: ({ COMPLETED: 'green', RESERVED: 'blue', ACTIVE: 'green', CANCELLED: 'red' } as any)[s] || 'gray'
     }));
   }
 

@@ -24,7 +24,7 @@
             @if (b.status === 'RESERVED') {
               <button (click)="checkIn(b)" class="btn-xs">Check in</button>
             }
-            @if (b.status === 'CHECKED_IN') {
+            @if (b.status === 'ACTIVE') {
               <button (click)="checkOut(b)" class="btn-xs primary">Check out</button>
             }
           </div>

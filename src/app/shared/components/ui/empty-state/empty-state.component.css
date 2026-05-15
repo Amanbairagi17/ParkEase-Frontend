@@ -1,0 +1,33 @@
+.ui-empty {
+  border: 2px dashed var(--border);
+  border-radius: 24px;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ui-empty__icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+}
+
+.ui-empty__icon span { font-size: 32px; }
+
+.ui-empty h2 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.ui-empty p {
+  color: var(--text-muted);
+  max-width: 360px;
+}

@@ -1,0 +1,45 @@
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--primary);
+  color: var(--text-on-primary);
+}
+
+.ui-btn--outline {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.ui-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.ui-btn--sm {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.ui-btn--lg {
+  padding: 0.9rem 1.5rem;
+  font-size: 1rem;
+}
+
+.ui-btn--full { width: 100%; }
+
+.ui-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ui-btn__icon { font-size: 1.1rem; }

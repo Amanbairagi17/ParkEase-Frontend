@@ -24,18 +24,27 @@ export class DriverBookingsComponent implements OnInit {
 
   tabs = [
     { label: 'All', value: 'all' },
+    { label: 'Upcoming', value: 'UPCOMING' },
     { label: 'Active', value: 'ACTIVE' },
-    { label: 'Completed', value: 'COMPLETED' },
+    { label: 'History', value: 'HISTORY' },
     { label: 'Cancelled', value: 'CANCELLED' },
   ];
+
 
   filtered = computed(() => {
     const b = this.bookings();
     const tab = this.activeTab();
+
     if (tab === 'all') return b;
-    if (tab === 'ACTIVE') return b.filter(x => x.status === 'RESERVED' || x.status === 'ACTIVE' || x.status === 'CHECKED_IN');
-    return b.filter(x => x.status === tab);
+    if (tab === 'UPCOMING') return b.filter(x => this.isUpcomingStatus(x.status));
+    if (tab === 'ACTIVE') return b.filter(x => this.isActiveStatus(x.status));
+    if (tab === 'HISTORY') return b.filter(x => this.isHistoryStatus(x.status));
+    if (tab === 'CANCELLED') return b.filter(x => x.status === 'CANCELLED');
+
+
+    return b;
   });
+
 
   ngOnInit(): void {
     const uid = this.auth.getUserIdFromToken();
@@ -59,14 +68,19 @@ export class DriverBookingsComponent implements OnInit {
   getTabCount(tab: string): number {
     const b = this.bookings();
     if (tab === 'all') return b.length;
-    if (tab === 'ACTIVE') return b.filter(x => x.status === 'RESERVED' || x.status === 'ACTIVE' || x.status === 'CHECKED_IN').length;
+    if (tab === 'UPCOMING') return b.filter(x => this.isUpcomingStatus(x.status)).length;
+    if (tab === 'ACTIVE') return b.filter(x => this.isActiveStatus(x.status)).length;
+    if (tab === 'HISTORY') return b.filter(x => this.isHistoryStatus(x.status)).length;
     return b.filter(x => x.status === tab).length;
   }
 
+
   getDuration(booking: Booking): string {
-    if (!booking.startTime || !booking.endTime) return '--';
-    const start = new Date(booking.startTime);
-    const end = new Date(booking.endTime);
+    const startValue = booking.checkInTime || booking.startTime;
+    const endValue = booking.checkOutTime || booking.endTime;
+    if (!startValue || !endValue) return '--';
+    const start = new Date(startValue);
+    const end = new Date(endValue);
     const diffMs = end.getTime() - start.getTime();
     if (diffMs <= 0) return '--';
 
@@ -77,9 +91,25 @@ export class DriverBookingsComponent implements OnInit {
 
   getStatusClass(status: Booking['status']): string {
     if (status === 'COMPLETED') return 'status completed';
-    if (status === 'ACTIVE' || status === 'CHECKED_IN') return 'status active';
+    if (status === 'ACTIVE') return 'status active';
     if (status === 'RESERVED') return 'status pending';
-    if (status === 'CANCELLED' || status === 'EXPIRED') return 'status failed';
+    if (status === 'CANCELLED') return 'status failed';
     return 'status pending';
+
   }
+
+  private isUpcomingStatus(status: Booking['status']): boolean {
+    return ['RESERVED'].includes(status);
+  }
+
+  private isActiveStatus(status: Booking['status']): boolean {
+    return ['ACTIVE'].includes(status);
+  }
+
+  private isHistoryStatus(status: Booking['status']): boolean {
+    return ['COMPLETED'].includes(status);
+  }
+
+
 }
+

@@ -1,0 +1,16 @@
+.ui-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+.ui-status--success { background: var(--success-soft); color: var(--success); }
+.ui-status--warning { background: var(--warning-soft); color: var(--warning); }
+.ui-status--danger { background: var(--error-soft); color: var(--error); }

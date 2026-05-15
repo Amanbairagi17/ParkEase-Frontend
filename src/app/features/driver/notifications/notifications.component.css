@@ -1,6 +1,9 @@
 .notifications-page {
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* ── Header ────────────────────────────────────────────────────────────── */
@@ -60,6 +63,9 @@
   flex-direction: column;
   gap: 20px;
   box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 96px;
+  z-index: 5;
 }
 
 .filter-group {
@@ -171,4 +177,6 @@
   .filters-bar { padding: 16px; }
   .filter-group { flex-direction: column; align-items: flex-start; gap: 8px; }
   .filter-group label { width: auto; }
+  .chips { overflow-x: auto; flex-wrap: nowrap; width: 100%; padding-bottom: 6px; }
+  .chip { white-space: nowrap; }
 }

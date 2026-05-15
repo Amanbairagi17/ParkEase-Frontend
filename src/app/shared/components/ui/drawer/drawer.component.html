@@ -1,0 +1,14 @@
+<div class="ui-drawer" [class.ui-drawer--open]="open">
+  <div class="ui-drawer__backdrop" (click)="close.emit()"></div>
+  <div class="ui-drawer__panel" role="dialog" aria-modal="true">
+    <header class="ui-drawer__header">
+      <h3>{{ title }}</h3>
+      <button class="ui-drawer__close" (click)="close.emit()" aria-label="Close">
+        <span class="material-icons">close</span>
+      </button>
+    </header>
+    <div class="ui-drawer__content">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

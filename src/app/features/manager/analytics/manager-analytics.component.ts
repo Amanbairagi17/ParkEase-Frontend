@@ -34,8 +34,8 @@ export class ManagerAnalyticsComponent implements OnInit {
 
   get bookingBreakdown() {
     const total = this.allBookings.length || 1;
-    const statuses = ['COMPLETED', 'RESERVED', 'CHECKED_IN', 'CANCELLED', 'EXPIRED'];
-    const clsMap: Record<string, string> = { COMPLETED: 'green', RESERVED: 'blue', CHECKED_IN: 'green', CANCELLED: 'red', EXPIRED: 'yellow' };
+    const statuses = ['COMPLETED', 'RESERVED', 'ACTIVE', 'CANCELLED'];
+    const clsMap: Record<string, string> = { COMPLETED: 'green', RESERVED: 'blue', ACTIVE: 'green', CANCELLED: 'red' };
     return statuses.map(s => ({
       label: s,
       count: this.allBookings.filter(b => b.status === s).length,

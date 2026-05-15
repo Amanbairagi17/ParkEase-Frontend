@@ -1,0 +1,37 @@
+<div class="receipt-card card">
+  <div class="card-header">
+    <div class="meta">
+      <span class="receipt-number">{{ receipt.receiptNumber }}</span>
+      <span class="receipt-date">{{ receipt.generatedAt | date:'medium' }}</span>
+    </div>
+    <span class="status" [ngClass]="receipt.paymentStatus?.toLowerCase()">
+      {{ receipt.paymentStatus || 'UNKNOWN' }}
+    </span>
+  </div>
+
+  <div class="card-body">
+    <div class="info-row">
+      <span class="label">Parking</span>
+      <span class="value">{{ receipt.parkingName }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Vehicle</span>
+      <span class="value">{{ receipt.vehicleNumber }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">Slot</span>
+      <span class="value">{{ receipt.slotNumber }}</span>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <div class="amount">
+      INR {{ receipt.amountPaid | number:'1.2-2' }}
+    </div>
+    <a class="link-btn" [routerLink]="['/receipts', receipt.receiptId]">View</a>
+    <app-receipt-download
+      [receiptId]="receipt.receiptId"
+      [receiptNumber]="receipt.receiptNumber">
+    </app-receipt-download>
+  </div>
+</div>

@@ -1,0 +1,85 @@
+<div class="receipt-history-page">
+  <header class="page-header">
+    <div>
+      <h1>Receipt History</h1>
+      <p>Search, filter, and manage your payment receipts.</p>
+    </div>
+    <button class="btn outline" (click)="retry()">
+      <span class="material-icons">refresh</span>
+      Refresh
+    </button>
+  </header>
+
+  <div class="filters card">
+    <form [formGroup]="filterForm">
+      <div class="filter-grid">
+        <div class="form-group">
+          <label>Search</label>
+          <input class="input" formControlName="search" placeholder="Receipt no, payment or booking ID">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select class="input" formControlName="status">
+            <option value="">All</option>
+            <option value="SUCCESS">SUCCESS</option>
+            <option value="FAILED">FAILED</option>
+            <option value="PENDING">PENDING</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Parking</label>
+          <input class="input" formControlName="parking" placeholder="Parking name">
+        </div>
+        <div class="form-group">
+          <label>Vehicle</label>
+          <input class="input" formControlName="vehicle" placeholder="Vehicle number">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input class="input" type="date" formControlName="startDate">
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input class="input" type="date" formControlName="endDate">
+        </div>
+        @if (isAdmin()) {
+          <div class="form-group">
+            <label>User ID (Admin)</label>
+            <input class="input" formControlName="adminUserId" placeholder="User ID to view">
+          </div>
+        }
+      </div>
+    </form>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <app-skeleton-loader type="card" height="160px"></app-skeleton-loader>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="state-card error">
+      <span class="material-icons">error</span>
+      <p>{{ error() }}</p>
+      <button class="btn" (click)="retry()">Retry</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state-card empty">
+      <span class="material-icons">receipt_long</span>
+      <p>No receipts match your filters.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (r of pagedReceipts; track r.receiptId) {
+        <app-receipt-card [receipt]="r"></app-receipt-card>
+      }
+    </div>
+
+    <div class="pagination">
+      <button class="btn outline" (click)="prevPage()" [disabled]="page() === 1">Prev</button>
+      <span>Page {{ page() }} of {{ totalPages }}</span>
+      <button class="btn outline" (click)="nextPage()" [disabled]="page() === totalPages">Next</button>
+    </div>
+  }
+</div>

@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
 import { ParkingSpot } from '../models/types';
+import { ApiService } from './api.service';
 
 export interface ParkingSpotRequest {
   lotId: string | number;
@@ -22,7 +22,8 @@ export interface BulkSpotRequest {
 @Injectable({ providedIn: 'root' })
 export class ParkingSpotService {
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/parking-spots`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/parking-spots');
 
   // POST /api/parking-spots  (MANAGER/ADMIN)
   addSpot(payload: ParkingSpotRequest): Observable<ParkingSpot> {

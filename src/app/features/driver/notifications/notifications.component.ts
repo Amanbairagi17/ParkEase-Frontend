@@ -4,8 +4,9 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Notification } from '../../../core/models/types';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { NotificationCardComponent } from '../../../shared/components/notification-card/notification-card.component';
+import { EmptyStateComponent } from '../../../shared/components/ui/empty-state/empty-state.component';
 import { FormsModule } from '@angular/forms';
-import { BehaviorSubject, combineLatest, map, Observable, delay, startWith } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable, delay, startWith, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-notifications',
@@ -14,6 +15,7 @@ import { BehaviorSubject, combineLatest, map, Observable, delay, startWith } fro
     CommonModule, 
     SkeletonLoaderComponent, 
     NotificationCardComponent, 
+    EmptyStateComponent,
     FormsModule
   ],
   templateUrl: './notifications.component.html',
@@ -39,23 +41,26 @@ export class NotificationsComponent implements OnInit {
       this.channelFilter$
     ]).pipe(
       map(([notifications, type, channel]) => {
-        return notifications.filter(n => {
-          const typeMatch = type === 'ALL' || n.type.toUpperCase() === type;
-          const channelMatch = channel === 'ALL' || n.channel.toUpperCase() === channel;
-          return typeMatch && channelMatch;
-        });
-      })
+        return notifications
+          .filter(n => {
+            const typeMatch = type === 'ALL' || n.type.toUpperCase() === type;
+            const channelMatch = channel === 'ALL' || n.channel.toUpperCase() === channel;
+            return typeMatch && channelMatch;
+          })
+          .slice(0, 50); // Limit to 50 for performance
+      }),
+      distinctUntilChanged((prev: Notification[], curr: Notification[]) => JSON.stringify(prev) === JSON.stringify(curr))
     );
 
     this.loading$ = this.notificationService.notifications$.pipe(
       map(() => false),
       startWith(true),
+      distinctUntilChanged(),
       delay(500)
     );
   }
   
   ngOnInit(): void {
-    this.notificationService.refresh();
   }
 
   onTypeChange(type: string) {

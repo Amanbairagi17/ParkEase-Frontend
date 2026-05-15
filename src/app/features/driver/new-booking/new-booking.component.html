@@ -135,11 +135,22 @@
                 <label>Pricing Model</label>
                 <div class="type-selector">
                   <button type="button" 
-                          [class.active]="form.value.pricingType === 'HOURLY'"
+                          [class.active]="rawForm.pricingType === 'HOURLY'"
                           (click)="form.patchValue({pricingType: 'HOURLY'})">Hourly</button>
                   <button type="button" 
-                          [class.active]="form.value.pricingType === 'DAILY'"
+                          [class.active]="rawForm.pricingType === 'DAILY'"
                           (click)="form.patchValue({pricingType: 'DAILY'})">Daily</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Booking Type</label>
+                <div class="type-selector">
+                  <button type="button" 
+                          [class.active]="rawForm.bookingType === 'PRE_BOOKING'"
+                          (click)="form.patchValue({bookingType: 'PRE_BOOKING'})">Pre-Booking</button>
+                  <button type="button" 
+                          [class.active]="rawForm.bookingType === 'WALK_IN_BOOKING'"
+                          (click)="form.patchValue({bookingType: 'WALK_IN_BOOKING'})">Walk-In</button>
                 </div>
               </div>
             </div>
@@ -147,7 +158,7 @@
         </div>
 
         <!-- Step 3: Time Selection -->
-        <div class="step-card" [class.disabled]="!form.value.vehiclePlate">
+        <div class="step-card" [class.disabled]="!rawForm.vehiclePlate">
           <div class="step-header">
             <span class="step-num">3</span>
             <h3>Booking Time</h3>
@@ -160,7 +171,7 @@
               </div>
               <div class="form-group">
                 <label>End Time</label>
-                <input type="datetime-local" formControlName="endTime" [min]="form.value.startTime || minDate">
+                <input type="datetime-local" formControlName="endTime" [min]="rawForm.startTime || minDate">
               </div>
             </div>
           </form>
@@ -173,7 +184,7 @@
         </div>
 
         <!-- Step 4: Spot Selection -->
-        <div class="step-card" [class.disabled]="!form.value.startTime || !form.value.endTime">
+        <div class="step-card" [class.disabled]="!rawForm.startTime || !rawForm.endTime">
           <div class="step-header">
             <span class="step-num">4</span>
             <h3>Choose a Spot</h3>
@@ -205,7 +216,7 @@
                   }
                 </div>
               }
-              @if (availableSpots().length === 0 && selectedLot() && form.value.vehiclePlate && form.value.startTime && form.value.endTime && !spotsLoading()) {
+              @if (availableSpots().length === 0 && selectedLot() && rawForm.vehiclePlate && rawForm.startTime && rawForm.endTime && !spotsLoading()) {
                 <div class="empty-spots">No available spots for the selected criteria.</div>
               }
             </div>
@@ -224,7 +235,7 @@
             </div>
             <div class="summary-item">
               <span class="label">Vehicle</span>
-              <span class="value">{{ form.value.vehiclePlate || '--' }}</span>
+              <span class="value">{{ rawForm.vehiclePlate || '--' }}</span>
             </div>
             <div class="summary-item">
               <span class="label">Duration</span>
@@ -232,7 +243,7 @@
             </div>
             <div class="summary-item">
               <span class="label">Pricing</span>
-              <span class="value">{{ form.value.pricingType }} Plan</span>
+              <span class="value">{{ rawForm.pricingType }} Plan</span>
             </div>
             
             <div class="divider"></div>
@@ -260,7 +271,7 @@
           <button class="confirm-btn" 
                   [disabled]="!canConfirm"
                   (click)="submit()">
-            {{ submitting() ? 'Creating Booking...' : 'Confirm & Pay' }}
+            {{ submitting() ? 'Creating Booking...' : 'Confirm Reservation' }}
           </button>
         </div>
       </div>

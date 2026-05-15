@@ -23,7 +23,12 @@ export class ManagerDashboardComponent implements OnInit {
   allBookings: Booking[] = [];
   loading = true;
 
-  get activeBookings(): Booking[] { return this.allBookings.filter(b => b.status === 'RESERVED' || b.status === 'CHECKED_IN'); }
+  get activeBookings(): Booking[] {
+    return this.allBookings.filter(b => [
+      'RESERVED',
+      'ACTIVE'
+    ].includes(b.status));
+  }
   get revenue(): number { return this.allBookings.filter(b => b.status === 'COMPLETED').reduce((s, b) => s + (b.totalAmount ?? 0), 0); }
   get occupancy(): number {
     const total = this.lots.reduce((s, l) => s + l.totalSpots, 0);

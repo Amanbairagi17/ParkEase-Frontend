@@ -52,13 +52,12 @@
     } @else {
       @if ((notifications$ | async); as notifications) {
         @if (notifications.length === 0) {
-          <div class="empty-state animate-fade-in">
-            <div class="empty-icon-circle">
-              <span class="material-icons">notifications</span>
-            </div>
-            <h2>No notifications found</h2>
-            <p>We'll notify you when something important happens.</p>
-          </div>
+          <ui-empty-state
+            class="animate-fade-in"
+            icon="notifications"
+            title="No notifications found"
+            message="We'll notify you when something important happens.">
+          </ui-empty-state>
         } @else {
           @for (n of notifications; track n.notificationId) {
             <app-notification-card 

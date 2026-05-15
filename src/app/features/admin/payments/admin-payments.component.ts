@@ -18,8 +18,11 @@ export class AdminPaymentsComponent implements OnInit {
   loading = true;
 
   get revenue(): number { return this.payments.filter(p => p.status === 'SUCCESS').reduce((s, p) => s + Number(p.amount || 0), 0); }
-  get pending(): number { return this.payments.filter(p => p.status === 'PENDING').length; }
+  get pending(): number { return this.payments.filter(p => p.status === 'SUCCESS').length; }
+
+
   get refunded(): number { return this.payments.filter(p => p.status === 'REFUNDED').length; }
+
 
   ngOnInit(): void {
     this.paymentService.getAll().pipe(catchError(() => of([]))).subscribe(p => {

@@ -71,6 +71,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  height: 100%;
 }
 
 body {
@@ -80,7 +81,21 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  height: 100%;
 }
+
+/* IMPORTANT: do not globally disable scrolling.
+   Previously, body.app-shell-active/body.sidebar-open were setting overflow:hidden,
+   which can prevent landing page scrolling. */
+body.app-shell-active {
+  /* keep default scrolling */
+}
+
+body.sidebar-open {
+  /* keep default scrolling */
+}
+
 
 h1, h2, h3, h4, .font-heading {
   font-family: 'Outfit', sans-serif;
@@ -88,6 +103,14 @@ h1, h2, h3, h4, .font-heading {
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
+
+h1 { font-size: clamp(1.6rem, 2vw + 1rem, 2.5rem); }
+h2 { font-size: clamp(1.25rem, 1.2vw + 0.8rem, 1.8rem); }
+h3 { font-size: clamp(1.1rem, 1vw + 0.7rem, 1.5rem); }
+
+img { max-width: 100%; height: auto; }
+
+* { min-width: 0; }
 
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }

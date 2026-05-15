@@ -4,9 +4,12 @@
       <h1>Payment History</h1>
       <p>View and manage your parking transactions</p>
     </div>
-    <div class="summary-card">
-      <span class="label">Total Spent</span>
-      <span class="value">₹{{ totalPaid | number:'1.2-2' }}</span>
+    <div class="header-actions">
+      <div class="summary-card">
+        <span class="label">Total Spent</span>
+        <span class="value">₹{{ totalPaid | number:'1.2-2' }}</span>
+      </div>
+      <a class="view-receipts" routerLink="/receipts">View Receipts</a>
     </div>
   </header>
 
@@ -20,10 +23,7 @@
       }
     } @else {
       @if (payments().length === 0) {
-        <div class="empty-state">
-          <span class="material-icons">receipt_long</span>
-          <p>No payment records found</p>
-        </div>
+        <ui-empty-state icon="receipt_long" title="No payment records" message="Your payment history will appear here."></ui-empty-state>
       } @else {
         <div class="table-wrapper">
           <table class="payments-table">
@@ -66,6 +66,45 @@
               }
             </tbody>
           </table>
+        </div>
+
+        <div class="payment-cards">
+          @for (p of payments(); track p.paymentId) {
+            <div class="payment-card">
+              <div class="payment-card-header">
+                <div>
+                  <div class="label">Booking</div>
+                  <div class="value">#{{ p.bookingId }}</div>
+                </div>
+                <span [ngClass]="getStatusClass(p.status)">{{ p.status }}</span>
+              </div>
+              <div class="payment-card-row">
+                <span class="label">Transaction ID</span>
+                <span class="value">{{ p.transactionId || '---' }}</span>
+              </div>
+              <div class="payment-card-row">
+                <span class="label">Mode</span>
+                <span class="value">{{ p.mode }}</span>
+              </div>
+              <div class="payment-card-row">
+                <span class="label">Date</span>
+                <span class="value">{{ p.paidAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="payment-card-row">
+                <span class="label">Amount</span>
+                <span class="value">₹{{ p.amount | number:'1.2-2' }}</span>
+              </div>
+              <div class="payment-card-actions">
+                @if (p.status === 'PENDING') {
+                  <button class="pay-btn" (click)="payNow(p)" [disabled]="processing()">
+                    {{ processing() ? 'Processing...' : 'Pay Now' }}
+                  </button>
+                } @else {
+                  <span class="paid-label">Paid</span>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
     }

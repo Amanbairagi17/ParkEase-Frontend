@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
 import { AdminUser, AdminStats, BroadcastRequest, WarnUserRequest } from '../models/types';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/admin`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/admin');
 
   // ── User Management ──────────────────────────────────────────────────────────
 

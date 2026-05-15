@@ -28,9 +28,10 @@ export class AdminDashboardComponent implements OnInit {
   loading = true;
 
   get activeBookings(): Booking[] {
-    return this.allBookings.filter(
-      b => b?.status === 'RESERVED' || b?.status === 'CHECKED_IN'
-    );
+    return this.allBookings.filter(b => [
+      'RESERVED',
+      'ACTIVE'
+    ].includes(b?.status));
   }
 
   get totalRevenue(): number {
@@ -48,9 +49,9 @@ export class AdminDashboardComponent implements OnInit {
     this.cdr.detectChanges();
 
     forkJoin({
-      stats: this.adminService.getStats().pipe(catchError(e => { console.error('Stats Error:', e); return of(null); })),
-      bookings: this.bookingService.getActive().pipe(catchError(e => { console.error('Booking Error:', e); return of([]); })),
-      payments: this.paymentService.getAll().pipe(catchError(e => { console.error('Payment Error:', e); return of([]); })),
+      stats: this.adminService.getStats().pipe(catchError(() => of(null))),
+      bookings: this.bookingService.getActive().pipe(catchError(() => of([]))),
+      payments: this.paymentService.getAll().pipe(catchError(() => of([]))),
     }).pipe(
       finalize(() => {
         this.loading = false;

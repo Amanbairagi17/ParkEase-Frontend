@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
@@ -9,7 +9,7 @@ import { BookingService } from '../../../core/services/booking.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { Booking, ParkingLot, ParkingSpot, Vehicle } from '../../../core/models/types';
+import { Booking, BookingEstimate, ParkingLot, ParkingSpot, Vehicle } from '../../../core/models/types';
 import { catchError, debounceTime, distinctUntilChanged, finalize, forkJoin, of, switchMap } from 'rxjs';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
@@ -32,6 +32,7 @@ export class NewBookingComponent implements OnInit {
   private auth = inject(AuthService);
   private notificationService = inject(NotificationService);
   private toast = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   // State using Signals for better performance
   lots = signal<ParkingLot[]>([]);
@@ -51,6 +52,8 @@ export class NewBookingComponent implements OnInit {
   activeBookings = signal<Booking[]>([]);
   selectedSpot = signal<ParkingSpot | null>(null);
   selectedLot = signal<ParkingLot | null>(null);
+  estimate = signal<BookingEstimate | null>(null);
+  estimateLoading = signal<boolean>(false);
   
   loading = signal<boolean>(true);
   spotsLoading = signal<boolean>(false);
@@ -131,11 +134,26 @@ export class NewBookingComponent implements OnInit {
     vehiclePlate: ['', Validators.required],
     bookingType: ['PRE_BOOKING', Validators.required],
     pricingType: ['HOURLY', Validators.required],
-  }, { validators: this.dateRangeValidator });
+  }, { validators: [this.dateRangeValidator.bind(this), this.startTimeRequiredValidator.bind(this)] });
+
+  get rawForm() {
+    return this.form.getRawValue();
+  }
+
+  startTimeRequiredValidator(group: any) {
+    const raw = group.getRawValue();
+    const type = raw.bookingType;
+    const start = raw.startTime;
+    if (type === 'PRE_BOOKING' && !start) {
+      return { startTimeRequired: true };
+    }
+    return null;
+  }
 
   dateRangeValidator(group: any) {
-    const start = group.get('startTime')?.value;
-    const end = group.get('endTime')?.value;
+    const raw = group.getRawValue();
+    const start = raw.startTime;
+    const end = raw.endTime;
     if (start && end && new Date(start) >= new Date(end)) {
       return { invalidRange: true };
     }
@@ -144,27 +162,12 @@ export class NewBookingComponent implements OnInit {
 
   get minDate(): string {
     const now = new Date();
-    return now.toISOString().slice(0, 16);
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   }
 
   get estimatedTotal(): number {
-    const s = this.selectedSpot();
-    const v = this.form.value;
-    if (!s || !v.startTime || !v.endTime || this.form.errors?.['invalidRange']) return 0;
-    
-    const start = new Date(v.startTime);
-    const end = new Date(v.endTime);
-    const diffMs = end.getTime() - start.getTime();
-    
-    if (diffMs <= 0) return 0;
-    
-    if (v.pricingType === 'DAILY') {
-      const days = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-      return days * (s.pricePerHour * 10); 
-    } else {
-      const hours = diffMs / (1000 * 60 * 60);
-      return Number((hours * s.pricePerHour).toFixed(2));
-    }
+    return this.estimate()?.totalAmount ?? 0;
   }
 
   get canConfirm(): boolean {
@@ -256,6 +259,24 @@ export class NewBookingComponent implements OnInit {
       this.tryLoadSpots();
     });
     this.form.get('vehiclePlate')?.valueChanges.subscribe(() => this.tryLoadSpots());
+
+    this.form.get('bookingType')?.valueChanges.subscribe(type => {
+      console.log('[NewBooking] Booking type changed to:', type);
+      const startTimeCtrl = this.form.get('startTime');
+      
+      if (type === 'WALK_IN_BOOKING') {
+        const now = this.minDate;
+        startTimeCtrl?.setValue(now, { emitEvent: false });
+        startTimeCtrl?.disable({ emitEvent: false });
+        console.log('[NewBooking] WALK_IN mode: startTime auto-set to', now);
+      } else {
+        startTimeCtrl?.enable({ emitEvent: false });
+      }
+      
+      this.form.updateValueAndValidity();
+      this.tryLoadSpots();
+      this.tryEstimate();
+    });
   }
 
   onLotChange(): void {
@@ -274,21 +295,21 @@ export class NewBookingComponent implements OnInit {
   }
 
   tryLoadSpots(): void {
-    const lotId = this.selectedParkingId || this.form.value.lotId;
-    const startTime = this.startTime || this.form.value.startTime;
-    const endTime = this.endTime || this.form.value.endTime;
-    const vehiclePlate = this.form.value.vehiclePlate;
+    const rawForm = this.form.getRawValue();
+    const lotId = this.selectedParkingId || rawForm.lotId;
+    const startTime = rawForm.startTime;
+    const endTime = rawForm.endTime;
+    const vehiclePlate = rawForm.vehiclePlate;
 
-    console.log('Selected lotId:', lotId);
-    console.log('lotId:', lotId);
-    console.log('vehicle:', this.selectedVehicle || vehiclePlate);
-    console.log('time:', startTime, endTime);
+    console.log('[NewBooking] tryLoadSpots check:', { lotId, startTime, endTime, vehiclePlate });
 
     if (!lotId || !vehiclePlate || !startTime || !endTime) {
+      console.log('[NewBooking] tryLoadSpots skipped — missing required fields');
       return;
     }
 
     if (this.form.errors?.['invalidRange']) {
+      console.log('[NewBooking] tryLoadSpots skipped — invalid date range');
       return;
     }
 
@@ -296,6 +317,7 @@ export class NewBookingComponent implements OnInit {
   }
 
   loadAvailableSpots(lotId: string | number): void {
+    console.log('[NewBooking] Loading spots for lotId:', lotId);
     this.spotsLoading.set(true);
     this.availableSpots.set([]);
 
@@ -303,56 +325,103 @@ export class NewBookingComponent implements OnInit {
       spots: this.spotService.getByLot(lotId),
       bookings: this.bookingService.getActiveByLot(lotId).pipe(catchError(() => of([])))
     })
-      .pipe(finalize(() => this.spotsLoading.set(false)))
+      .pipe(finalize(() => {
+        this.spotsLoading.set(false);
+        this.cdr.markForCheck();
+      }))
       .subscribe({
         next: ({ spots, bookings }) => {
-          console.log('API Response:', spots);
+          console.log(`[NewBooking] Loaded ${spots.length} spots and ${bookings.length} active/reserved bookings`);
           this.availableSpots.set(Array.isArray(spots) ? spots : []);
           this.activeBookings.set(Array.isArray(bookings) ? bookings : []);
         },
-        error: () => this.error.set('Failed to load available spots.')
+        error: (err) => {
+          console.error('[NewBooking] Spot loading error:', err);
+          this.error.set('Failed to load available spots.');
+        }
       });
   }
 
   getSpotStatus(spot: ParkingSpot): 'AVAILABLE' | 'AVAILABLE_SOON' | 'BLOCKED' | 'UNKNOWN' {
-    if (spot.status === 'AVAILABLE') return 'AVAILABLE';
+    // 1. Basic spot status check
     if (spot.status === 'OCCUPIED') return 'BLOCKED';
 
-    const startTime = this.startTime || this.form.value.startTime;
-    const endTime = this.endTime || this.form.value.endTime;
+    // 2. Window-based availability check
+    const rawForm = this.form.getRawValue();
+    const startTime = rawForm.startTime;
+    const endTime = rawForm.endTime;
+
     if (!startTime || !endTime) {
-      return spot.status === 'RESERVED' ? 'BLOCKED' : 'UNKNOWN';
+      return spot.status === 'AVAILABLE' ? 'AVAILABLE' : 'BLOCKED';
     }
 
     const selectedStart = new Date(startTime).getTime();
     const selectedEnd = new Date(endTime).getTime();
-    const bookings = this.activeBookings().filter(b => b.spotId?.toString() === spot.spotId.toString());
 
-    if (bookings.length === 0) {
-      return spot.status === 'RESERVED' ? 'AVAILABLE_SOON' : 'UNKNOWN';
+    if (isNaN(selectedStart) || isNaN(selectedEnd) || selectedStart >= selectedEnd) {
+      return 'UNKNOWN';
     }
 
-    const hasOverlap = bookings.some(b => {
-      const bookingStart = new Date(b.startTime).getTime();
-      const bookingEnd = b.endTime ? new Date(b.endTime).getTime() : null;
-      if (bookingEnd === null) return true;
-      return bookingStart < selectedEnd && bookingEnd > selectedStart;
+    // 3. Check for overlaps in active/reserved bookings
+    const spotBookings = this.activeBookings().filter(b => b.spotId?.toString() === spot.spotId.toString());
+
+    if (spotBookings.length === 0) {
+      return spot.status === 'AVAILABLE' ? 'AVAILABLE' : 'AVAILABLE_SOON';
+    }
+
+    const hasOverlap = spotBookings.some(b => {
+      const bStart = new Date(b.startTime).getTime();
+      const bEnd = b.endTime ? new Date(b.endTime).getTime() : null;
+      if (!bEnd) return true; // Active booking with no end time blocks everything
+      return bStart < selectedEnd && bEnd > selectedStart;
     });
 
     if (hasOverlap) return 'BLOCKED';
 
-    const soonAvailable = bookings.every(b => {
-      if (!b.endTime) return false;
-      const bookingEnd = new Date(b.endTime).getTime();
-      return bookingEnd < selectedStart;
-    });
-
-    return soonAvailable ? 'AVAILABLE_SOON' : 'BLOCKED';
+    // If no overlap but spot is currently RESERVED/OCCUPIED, it's AVAILABLE_SOON for the user's future window
+    return 'AVAILABLE';
   }
 
   selectSpot(s: ParkingSpot): void {
     this.selectedSpot.set(s);
     this.form.patchValue({ spotId: s.spotId });
+    this.tryEstimate();
+  }
+
+  private normalizeLocalDateTime(value: string): string {
+    if (!value) return value;
+    return value.length === 16 ? `${value}:00` : value;
+  }
+
+  private tryEstimate(): void {
+    if (this.form.errors?.['invalidRange']) {
+      this.estimate.set(null);
+      return;
+    }
+
+    const rawForm = this.form.getRawValue();
+    const { lotId, spotId, startTime, endTime } = rawForm;
+    if (!lotId || !spotId || !startTime || !endTime) {
+      this.estimate.set(null);
+      return;
+    }
+
+    this.estimateLoading.set(true);
+    console.log('[NewBooking] Requesting estimate for:', { lotId, spotId, startTime, endTime, type: rawForm.bookingType });
+    this.bookingService.estimate({
+      lotId,
+      spotId,
+      startTime: this.normalizeLocalDateTime(startTime),
+      endTime: this.normalizeLocalDateTime(endTime),
+      bookingType: (rawForm.bookingType as any) || 'PRE_BOOKING'
+    }).pipe(finalize(() => {
+        this.estimateLoading.set(false);
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: (estimate) => this.estimate.set(estimate),
+        error: () => this.estimate.set(null)
+      });
   }
 
   submit(): void {
@@ -372,7 +441,7 @@ export class NewBookingComponent implements OnInit {
       return;
     }
 
-    const v = this.form.value;
+    const v = this.form.getRawValue();
     const vehicle = this.vehicles().find(x => x.licensePlate === v.vehiclePlate);
     
     this.submitting.set(true);
@@ -386,10 +455,11 @@ export class NewBookingComponent implements OnInit {
       vehicleType: (vehicle?.vehicleType || 'FOUR_WHEELER') as any,
       bookingType: v.bookingType as any,
       pricingType: v.pricingType as any,
-      startTime: new Date(v.startTime!).toISOString(),
-      endTime: new Date(v.endTime!).toISOString(),
-      totalAmount: this.estimatedTotal,
+      startTime: v.bookingType === 'WALK_IN_BOOKING' ? undefined : this.normalizeLocalDateTime(v.startTime!),
+      endTime: this.normalizeLocalDateTime(v.endTime!),
     };
+    
+    console.log('[NewBooking] Submitting booking:', bookingData);
 
     this.bookingService.create(bookingData)
       .pipe(finalize(() => this.submitting.set(false)))

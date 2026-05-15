@@ -8,12 +8,54 @@
 <div class="profile-layout animate-in">
   <div class="card profile-main-card">
     <div class="profile-header-area">
-      <div class="avatar-large">
-        <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="Avatar">
-        <div *ngIf="!user?.profilePicUrl" class="avatar-placeholder">{{ initials }}</div>
-        <button class="edit-avatar-btn" title="Change Avatar">
-          <span class="material-icons">camera_alt</span>
-        </button>
+      <div class="avatar-stack">
+        <div class="avatar-large">
+          <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar">
+          <div *ngIf="!avatarUrl" class="avatar-placeholder">{{ initials }}</div>
+          <button class="edit-avatar-btn" title="Change Avatar" (click)="fileInput.click()">
+            <span class="material-icons">camera_alt</span>
+          </button>
+        </div>
+
+        <div class="upload-tools">
+          <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+
+          <div class="dropzone" [class.drag-active]="dragActive"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)"
+               (click)="fileInput.click()">
+            <span class="material-icons">cloud_upload</span>
+            <div class="dropzone-text">
+              <strong>Drag & drop</strong> or click to upload
+              <small>JPG, PNG, WEBP up to 5 MB</small>
+            </div>
+          </div>
+
+          <div class="upload-actions">
+            <button type="button" class="btn btn-primary btn-sm"
+                    (click)="uploadProfilePicture()" [disabled]="!selectedFile || uploading">
+              <span class="material-icons" *ngIf="!uploading">upload</span>
+              <span class="spinner-sm" *ngIf="uploading"></span>
+              {{ uploading ? 'Uploading...' : 'Upload' }}
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm"
+                    (click)="clearSelection()" [disabled]="!selectedFile || uploading">
+              Clear
+            </button>
+            <button type="button" class="btn btn-danger btn-sm"
+                    (click)="deleteProfilePicture()" [disabled]="!user?.profilePicUrl || deleting">
+              <span class="material-icons" *ngIf="!deleting">delete</span>
+              <span class="spinner-sm" *ngIf="deleting"></span>
+              {{ deleting ? 'Removing...' : 'Remove' }}
+            </button>
+          </div>
+
+          <div class="file-info" *ngIf="selectedFile">
+            {{ selectedFile.name }} ({{ selectedFileSize }})
+          </div>
+          <div class="field-error" *ngIf="fileError">{{ fileError }}</div>
+        </div>
       </div>
       <div class="user-branding">
         <h2 class="user-display-name">{{ user?.fullName }}</h2>

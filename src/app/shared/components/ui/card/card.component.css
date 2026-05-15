@@ -1,0 +1,9 @@
+.ui-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-card--elevated { box-shadow: var(--shadow); }

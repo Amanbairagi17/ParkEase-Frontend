@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
 import { ParkingLot } from '../models/types';
 import { map } from 'rxjs';
+import { ApiService } from './api.service';
 
 export interface ParkingLotRequest {
   name: string;
@@ -21,7 +21,8 @@ export interface ParkingLotRequest {
 @Injectable({ providedIn: 'root' })
 export class ParkingLotService {
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/parking-lots`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/parking-lots');
 
   private toArray(res: any): ParkingLot[] {
     const value = res?.data ?? res ?? [];

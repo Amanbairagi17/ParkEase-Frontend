@@ -1,0 +1,97 @@
+<div class="receipt-details-page">
+  @if (loading()) {
+    <div class="skeleton-grid">
+      <app-skeleton-loader type="title" width="40%"></app-skeleton-loader>
+      <app-skeleton-loader type="card" height="260px"></app-skeleton-loader>
+    </div>
+  } @else if (error()) {
+    <div class="state-card error">
+      <span class="material-icons">error</span>
+      <p>{{ error() }}</p>
+      <a class="btn" routerLink="/receipts">Back to receipts</a>
+    </div>
+  } @else if (receipt()) {
+    <header class="page-header">
+      <div>
+        <h1>Receipt {{ receipt()?.receiptNumber }}</h1>
+        <p>Payment confirmation and parking summary</p>
+      </div>
+      <a class="btn outline" routerLink="/receipts/history">View History</a>
+    </header>
+
+    <div id="receipt-content" class="receipt-preview card">
+      <div class="preview-header">
+        <div class="brand">
+          <div class="logo">P</div>
+          <div>
+            <h2>ParkEase</h2>
+            <span>Payment Receipt</span>
+          </div>
+        </div>
+        <div class="qr">
+          <div class="qr-box">QR</div>
+          <span>Verify Receipt</span>
+        </div>
+      </div>
+
+      <div class="receipt-grid">
+        <div class="info-block">
+          <h3>Receipt Info</h3>
+          <div class="row"><span>Receipt No</span><strong>{{ receipt()?.receiptNumber }}</strong></div>
+          <div class="row"><span>Generated</span><strong>{{ receipt()?.generatedAt | date:'medium' }}</strong></div>
+          <div class="row"><span>Status</span><strong>{{ receipt()?.paymentStatus }}</strong></div>
+        </div>
+
+        <div class="info-block">
+          <h3>User Info</h3>
+          <div class="row"><span>Name</span><strong>{{ userName() || 'N/A' }}</strong></div>
+          <div class="row"><span>Email</span><strong>{{ userEmail() || 'N/A' }}</strong></div>
+          <div class="row"><span>User ID</span><strong>#{{ receipt()?.userId }}</strong></div>
+        </div>
+
+        <div class="info-block">
+          <h3>Parking Info</h3>
+          <div class="row"><span>Parking</span><strong>{{ receipt()?.parkingName }}</strong></div>
+          <div class="row"><span>Slot</span><strong>{{ receipt()?.slotNumber }}</strong></div>
+          <div class="row"><span>Vehicle</span><strong>{{ receipt()?.vehicleNumber }}</strong></div>
+        </div>
+
+        <div class="info-block">
+          <h3>Booking Info</h3>
+          <div class="row"><span>Booking ID</span><strong>#{{ receipt()?.bookingId }}</strong></div>
+          <div class="row"><span>Check In</span><strong>{{ receipt()?.checkInTime | date:'medium' }}</strong></div>
+          <div class="row"><span>Check Out</span><strong>{{ receipt()?.checkOutTime | date:'medium' }}</strong></div>
+          <div class="row"><span>Booking Type</span><strong>{{ receipt()?.bookingType || 'N/A' }}</strong></div>
+          <div class="row"><span>Pricing Type</span><strong>{{ receipt()?.pricingType || 'N/A' }}</strong></div>
+          <div class="row"><span>Duration</span><strong>{{ receipt()?.duration || 'N/A' }}</strong></div>
+        </div>
+
+        <div class="info-block">
+          <h3>Payment Info</h3>
+          <div class="row"><span>Payment ID</span><strong>#{{ receipt()?.paymentId }}</strong></div>
+          <div class="row"><span>Method</span><strong>{{ receipt()?.paymentMethod || 'UPI' }}</strong></div>
+          <div class="row"><span>Transaction</span><strong>{{ receipt()?.transactionId || receipt()?.razorpayPaymentId || '---' }}</strong></div>
+          <div class="row"><span>Base Amount</span><strong>INR {{ receipt()?.baseAmount || 0 | number:'1.2-2' }}</strong></div>
+          <div class="row"><span>Service Charge</span><strong>INR {{ receipt()?.serviceCharge || 0 | number:'1.2-2' }}</strong></div>
+          <div class="row"><span>GST</span><strong>INR {{ receipt()?.gstAmount || 0 | number:'1.2-2' }}</strong></div>
+          <div class="row"><span>Amount</span><strong>INR {{ receipt()?.amountPaid | number:'1.2-2' }}</strong></div>
+        </div>
+      </div>
+
+      <div class="preview-footer">
+        <span>Thank you for parking with ParkEase.</span>
+        <div class="total">
+          Total Paid: <strong>INR {{ receipt()?.amountPaid | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions card">
+      <h3>Receipt Actions</h3>
+      <app-receipt-download
+        [receiptId]="receipt()?.receiptId || ''"
+        [receiptNumber]="receipt()?.receiptNumber || 'receipt'">
+      </app-receipt-download>
+    </div>
+  }
+</div>

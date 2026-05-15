@@ -68,29 +68,45 @@ export interface Booking {
   spotId: string;
   vehiclePlate: string;
   vehicleType: 'TWO_WHEELER' | 'FOUR_WHEELER' | 'THREE_WHEELER' | 'HEAVY';
-  bookingType: 'PRE_BOOKING' | 'WALK_IN';
+  bookingType: 'PRE_BOOKING' | 'WALK_IN_BOOKING';
   pricingType: 'HOURLY' | 'DAILY';
   startTime: string;
   endTime: string;
-  status: 'RESERVED' | 'ACTIVE' | 'CHECKED_IN' | 'COMPLETED' | 'CANCELLED' | 'EXPIRED';
+  checkInTime?: string;
+  checkOutTime?: string;
+  status: 'RESERVED' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
   isPaid: boolean;
   duration?: string;
   totalAmount: number;
   amount?: number;
+  paidAmount?: number;
+  finalAmount?: number;
+  remainingAmount?: number;
+  pendingAmount?: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface BookingRequest {
-  userId: number;
-  lotId: number;
-  spotId: number;
+  userId: number | string;
+  lotId: number | string;
+  spotId: number | string;
   vehiclePlate: string;
   vehicleType: 'TWO_WHEELER' | 'FOUR_WHEELER' | 'THREE_WHEELER' | 'HEAVY';
-  bookingType: 'PRE_BOOKING' | 'WALK_IN';
+  bookingType: 'PRE_BOOKING' | 'WALK_IN_BOOKING';
   pricingType: 'HOURLY' | 'DAILY';
+  startTime?: string; // Optional for WALK_IN_BOOKING
+  endTime: string;
+}
+
+export interface BookingEstimate {
+  lotId: number;
+  spotId: number;
   startTime: string;
   endTime: string;
+  totalAmount: number;
+  hourlyRate: number;
+  durationMinutes: number;
 }
 
 export interface Payment {
@@ -98,13 +114,63 @@ export interface Payment {
   bookingId: number;
   userId: number;
   amount: number;
-  status: 'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED';
+  // Payment statuses are intentionally kept as generic strings to avoid coupling UI logic to legacy literals.
+  status: string;
   mode: 'CARD' | 'UPI' | 'WALLET' | 'CASH';
   transactionId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   currency: string;
   paidAt?: string;
   refundedAt?: string;
   description?: string;
+  idempotencyKey?: string;
+}
+
+export interface RazorpayOrder {
+  orderId: string;
+  currency: string;
+  amount: number;
+  key: string;
+}
+
+export interface Receipt {
+  receiptId: string;
+  receiptNumber: string;
+  bookingId: number;
+  paymentId: number;
+  userId: number;
+  vehicleNumber: string;
+  parkingName: string;
+  slotNumber: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  duration?: string;
+  bookingType?: Booking['bookingType'] | string;
+  pricingType?: Booking['pricingType'] | string;
+  baseAmount?: number;
+  serviceCharge?: number;
+  gstAmount?: number;
+  amountPaid: number;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  transactionId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  downloadUrl?: string;
+  paymentTime?: string;
+  generatedAt: string;
+}
+
+export interface ReceiptHistoryResponse {
+  items: Receipt[];
+  total: number;
+}
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
 }
 
 export interface Notification {
@@ -113,7 +179,7 @@ export interface Notification {
   type: string;
   title: string;
   message: string;
-  channel: 'IN_APP' | 'EMAIL' | 'SMS';
+  channel: 'APP' | 'IN_APP' | 'EMAIL' | 'SMS';
   relatedId?: string;
   relatedType?: string;
   isRead: boolean;

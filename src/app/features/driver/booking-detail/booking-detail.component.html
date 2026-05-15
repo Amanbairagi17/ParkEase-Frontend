@@ -60,13 +60,13 @@
           <div class="card-body">
             <h3 class="card-title">Booking Duration</h3>
             <div class="timing">
-              <div class="time">{{ booking.startTime | date:'MMM dd, h:mm a' }}</div>
+              <div class="time">{{ (booking.checkInTime || booking.startTime) | date:'MMM dd, h:mm a' }}</div>
               <div class="time-separator">to</div>
-              <div class="time">{{ booking.endTime | date:'MMM dd, h:mm a' }}</div>
+              <div class="time">{{ (booking.checkOutTime || booking.endTime) | date:'MMM dd, h:mm a' }}</div>
             </div>
             <div class="booking-meta">
               <div class="booking-type">{{ booking.bookingType.replace('_', ' ') | titlecase }} ({{ booking.pricingType || 'HOURLY' }} Plan)</div>
-              @if (booking.status === 'RESERVED' || booking.status === 'ACTIVE' || booking.status === 'CHECKED_IN') {
+              @if (canExtend(booking)) {
                 <button class="btn-extend" (click)="showExtendModal = true">
                   <span class="material-icons">add_alarm</span>
                   Extend
@@ -107,18 +107,47 @@
           </div>
           <div class="card-body">
             <h3 class="card-title">Payment Summary</h3>
-            <div class="amount-large">{{ (booking.amount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-2' }}</div>
-            
-            @if (booking.isPaid) {
-              <div class="paid-badge">
-                <span class="material-icons">check_circle</span>
-                SUCCESS
+
+            <div class="amount-large">
+              {{ (booking.finalAmount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-2' }}
+            </div>
+
+            @if ((getRemainingDue(booking)) > 0) {
+              <div class="pending-badge" role="status" aria-live="polite">
+                <span class="material-icons">warning</span>
+                Additional payment required: {{ getRemainingDue(booking) | currency:'INR':'symbol':'1.0-2' }}
               </div>
-            } @else if (booking.status === 'RESERVED' || booking.status === 'ACTIVE' || booking.status === 'CHECKED_IN') {
+              <div class="payment-breakdown">
+                <div class="breakdown-row">
+                  <span>Paid</span>
+                  <strong>{{ (booking.paidAmount ?? booking.amount ?? 0) | currency:'INR':'symbol':'1.0-2' }}</strong>
+                </div>
+                <div class="breakdown-row">
+                  <span>Remaining</span>
+                  <strong>{{ getRemainingDue(booking) | currency:'INR':'symbol':'1.0-2' }}</strong>
+                </div>
+              </div>
+            } @else {
+              @if (isPaid(booking)) {
+                <div class="paid-badge">
+                  <span class="material-icons">check_circle</span>
+                  SUCCESS
+                </div>
+              }
+            }
+
+            @if (canPay(booking)) {
               <button class="pay-now-btn" (click)="payNow(booking)" [disabled]="processing">
                 <span class="material-icons">payments</span>
-                Pay Now
+                Pay {{ getRemainingDue(booking) > 0 ? 'Remaining' : 'Now' }}
               </button>
+            }
+
+
+            @if (receipt) {
+              <div class="receipt-actions">
+                <app-receipt-download [receiptId]="receipt.receiptId" [receiptNumber]="receipt.receiptNumber"></app-receipt-download>
+              </div>
             }
 
             @if (qrCodeUrl) {
@@ -131,22 +160,25 @@
         </div>
       </div>
 
-      @if (booking.status === 'RESERVED' || booking.status === 'ACTIVE' || booking.status === 'CHECKED_IN') {
+      @if (canCancel(booking) || canCheckIn(booking) || canCheckout(booking)) {
         <footer class="actions-section">
-          @if (booking.status === 'RESERVED') {
+          @if (canCancel(booking)) {
             <button class="action-btn action-cancel" (click)="cancelBooking()" [disabled]="processing">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.59 12z"/>
               </svg>
               Cancel Booking
             </button>
+          }
+          @if (canCheckIn(booking)) {
             <button class="action-btn action-checkin" (click)="checkIn()" [disabled]="processing">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
               </svg>
               Check In
             </button>
-          } @else if (booking.status === 'ACTIVE' || booking.status === 'CHECKED_IN') {
+          }
+          @if (canCheckout(booking)) {
             <button class="action-btn action-checkout" (click)="checkOut()" [disabled]="processing">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 3H4.99c-1.11 0-1.98.9-1.98 2L3 19c0 1.1.88 2 1.99 2H19c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 12h-4c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2V5h10v10zm-9.5-2c.83 0 1.5-.67 1.5-1.5S11.33 10 10.5 10 9 10.67 9 11.5 9.67 13 10.5 13z"/>

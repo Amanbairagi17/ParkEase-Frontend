@@ -1,0 +1,13 @@
+<button
+  class="ui-btn"
+  [class.ui-btn--primary]="variant === 'primary'"
+  [class.ui-btn--outline]="variant === 'outline'"
+  [class.ui-btn--ghost]="variant === 'ghost'"
+  [class.ui-btn--sm]="size === 'sm'"
+  [class.ui-btn--lg]="size === 'lg'"
+  [class.ui-btn--full]="fullWidth"
+  [attr.type]="type"
+  [disabled]="disabled">
+  <span *ngIf="icon" class="material-icons ui-btn__icon">{{ icon }}</span>
+  <ng-content></ng-content>
+</button>

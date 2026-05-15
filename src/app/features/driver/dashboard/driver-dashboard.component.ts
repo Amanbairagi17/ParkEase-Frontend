@@ -51,8 +51,6 @@ export class DriverDashboardComponent implements OnInit {
       return;
     }
 
-    this.notificationService.refresh();
-
     forkJoin({
       bookings: this.bookingService.getByUser(userId.toString()).pipe(catchError(() => of([]))),
       vehicles: this.vehicleService.getByOwner(userId.toString()).pipe(catchError(() => of([]))),
@@ -61,7 +59,10 @@ export class DriverDashboardComponent implements OnInit {
       finalize(() => this.loading.set(false))
     ).subscribe(({ bookings, vehicles, payments }) => {
       this.allBookings$ = of(bookings);
-      this.activeBookings$ = of(bookings.filter(b => b.status === 'RESERVED' || b.status === 'ACTIVE' || b.status === 'CHECKED_IN'));
+      this.activeBookings$ = of(
+        bookings.filter(b => ['RESERVED', 'ACTIVE'].includes(b.status))
+      );
+
       
       this.stats.set({
         totalBookings: bookings.length,

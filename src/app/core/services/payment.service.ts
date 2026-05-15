@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
-import { Payment } from '../models/types';
+import { Observable, throwError } from 'rxjs';
+import { Payment, RazorpayOrder } from '../models/types';
+import { guardUserId } from '../utils/user-id';
+import { ApiService } from './api.service';
 
 export interface PaymentRequest {
   bookingId: string | number;
@@ -16,10 +17,20 @@ export interface PaymentRequest {
 export class PaymentService {
 
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/payments`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/payments');
 
   process(payload: PaymentRequest): Observable<Payment> {
-    return this.http.post<Payment>(this.API, payload);
+    if (payload.userId !== undefined) {
+      const safeUserId = guardUserId(payload.userId, 'PaymentService.process');
+      if (safeUserId === null) {
+        return throwError(() => new Error('Invalid userId'));
+      }
+    }
+    return this.http.post<Payment>(`${this.API}/process`, {
+      ...payload,
+      mode: payload.mode ?? 'CASH'
+    });
   }
 
   getByBooking(bookingId: string | number): Observable<Payment> {
@@ -27,11 +38,19 @@ export class PaymentService {
   }
 
   getByUser(userId: string | number): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.API}/user/${userId}`);
+    const safeUserId = guardUserId(userId, 'PaymentService.getByUser');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<Payment[]>(`${this.API}/user/${safeUserId}`);
   }
 
   getHistory(userId: string | number): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.API}/history/${userId}`);
+    const safeUserId = guardUserId(userId, 'PaymentService.getHistory');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<Payment[]>(`${this.API}/history/${safeUserId}`);
   }
 
   refund(paymentId: string | number): Observable<Payment> {
@@ -47,14 +66,22 @@ export class PaymentService {
   }
 
   getRevenue(userId: string | number): Observable<number> {
-    return this.http.get<number>(`${this.API}/revenue/${userId}`);
+    const safeUserId = guardUserId(userId, 'PaymentService.getRevenue');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<number>(`${this.API}/revenue/${safeUserId}`);
   }
 
   // Razorpay: create order
   createOrder(data: {
     bookingId: string | number;
-  }): Observable<any> {
-    return this.http.post(`${this.API}/create-order`, data);
+    mode?: Payment['mode'];
+  }): Observable<RazorpayOrder> {
+    return this.http.post<RazorpayOrder>(`${this.API}/create-order`, {
+      ...data,
+      mode: data.mode ?? 'UPI'
+    });
   }
 
   // Razorpay: verify payment
@@ -62,7 +89,7 @@ export class PaymentService {
     razorpayOrderId: string;
     razorpayPaymentId: string;
     razorpaySignature: string;
-  }): Observable<any> {
-    return this.http.post(`${this.API}/verify`, data);
+  }): Observable<Payment> {
+    return this.http.post<Payment>(`${this.API}/verify`, data);
   }
 }

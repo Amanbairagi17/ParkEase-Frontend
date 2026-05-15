@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -13,7 +13,9 @@ import { Notification } from '../../../core/models/types';
       <button class="bell-btn" (click)="toggleDropdown($event)">
         <span class="material-icons">notifications</span>
         @if ((notificationService.unreadCount$ | async); as count) {
-          <span class="badge">{{ count > 9 ? '9+' : count }}</span>
+          @if (count > 0) {
+            <span class="badge">{{ count > 9 ? '9+' : count }}</span>
+          }
         }
       </button>
 
@@ -221,16 +223,17 @@ export class NotificationBellComponent {
   notificationService = inject(NotificationService);
   showDropdown = false;
 
+  @HostListener('document:click')
+  closeDropdown(): void {
+    this.showDropdown = false;
+  }
+
   toggleDropdown(event: Event) {
     event.stopPropagation();
     this.showDropdown = !this.showDropdown;
-    
+
     if (this.showDropdown) {
-      const listener = () => {
-        this.showDropdown = false;
-        window.removeEventListener('click', listener);
-      };
-      window.addEventListener('click', listener, { once: true });
+      this.notificationService.refresh();
     }
   }
 

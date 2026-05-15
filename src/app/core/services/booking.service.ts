@@ -1,28 +1,22 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
-import { Booking } from '../models/types';
-
-export interface BookingRequest {
-  userId: number | string;
-  lotId: number | string;
-  spotId: number | string;
-  vehiclePlate: string;
-  vehicleType: Booking['vehicleType'];
-  bookingType: Booking['bookingType'];
-  pricingType: Booking['pricingType'];
-  startTime: string;
-  endTime: string;
-}
+import { Observable, throwError } from 'rxjs';
+import { Booking, BookingEstimate, BookingRequest as BookingRequestPayload } from '../models/types';
+import { guardUserId } from '../utils/user-id';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
   private http = inject(HttpClient);
-  private readonly API = `${environment.apiUrl}/bookings`;
+  private api = inject(ApiService);
+  private readonly API = this.api.url('/bookings');
 
-  create(payload: BookingRequest): Observable<Booking> {
-    return this.http.post<Booking>(this.API, payload);
+  create(payload: BookingRequestPayload): Observable<Booking> {
+    const safeUserId = guardUserId(payload.userId, 'BookingService.create');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.post<Booking>(this.API, { ...payload, userId: safeUserId });
   }
 
   getById(bookingId: number | string): Observable<Booking> {
@@ -30,11 +24,19 @@ export class BookingService {
   }
 
   getByUser(userId: number | string): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.API}/user/${userId}`);
+    const safeUserId = guardUserId(userId, 'BookingService.getByUser');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<Booking[]>(`${this.API}/user/${safeUserId}`);
   }
 
   getHistory(userId: number | string): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.API}/history/${userId}`);
+    const safeUserId = guardUserId(userId, 'BookingService.getHistory');
+    if (safeUserId === null) {
+      return throwError(() => new Error('Invalid userId'));
+    }
+    return this.http.get<Booking[]>(`${this.API}/history/${safeUserId}`);
   }
 
   getByLot(lotId: number | string): Observable<Booking[]> {
@@ -80,5 +82,15 @@ export class BookingService {
 
   getEstimate(bookingId: number | string): Observable<number> {
     return this.http.get<number>(`${this.API}/${bookingId}/estimate`);
+  }
+
+  estimate(payload: {
+    lotId: number | string;
+    spotId: number | string;
+    startTime: string;
+    endTime: string;
+    bookingType: 'PRE_BOOKING' | 'WALK_IN_BOOKING';
+  }): Observable<BookingEstimate> {
+    return this.http.post<BookingEstimate>(`${this.API}/estimate`, payload);
   }
 }

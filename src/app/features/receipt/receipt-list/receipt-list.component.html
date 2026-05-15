@@ -1,0 +1,33 @@
+<div class="receipt-list-page">
+  <header class="page-header">
+    <div>
+      <h1>Your Receipts</h1>
+      <p>All payment receipts generated for your bookings.</p>
+    </div>
+    <a class="btn" routerLink="/receipts/history">View History</a>
+  </header>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <app-skeleton-loader type="card" height="180px"></app-skeleton-loader>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="state-card error">
+      <span class="material-icons">error</span>
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (recentReceipts.length === 0) {
+    <div class="state-card empty">
+      <span class="material-icons">receipt_long</span>
+      <p>No receipts yet. Complete a payment to generate one.</p>
+    </div>
+  } @else {
+    <div class="grid">
+      @for (r of recentReceipts; track r.receiptId) {
+        <app-receipt-card [receipt]="r"></app-receipt-card>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,30 @@
+<div class="success-page">
+  <div class="success-card">
+    <div class="icon">
+      <span class="material-icons">check_circle</span>
+    </div>
+    <h1>Payment Successful</h1>
+    <p>{{ message() }}</p>
+
+    @if (loading()) {
+      <div class="loader"></div>
+    } @else if (receipt()) {
+      <div class="summary">
+        <div><span>Booking</span><strong>#{{ receipt()?.bookingId }}</strong></div>
+        <div><span>Payment</span><strong>#{{ receipt()?.paymentId }}</strong></div>
+        <div><span>Total</span><strong>INR {{ receipt()?.amountPaid | number:'1.2-2' }}</strong></div>
+      </div>
+      <div class="actions">
+        <button class="btn" type="button" (click)="viewReceipt()">View Receipt</button>
+        <a class="btn secondary" routerLink="/driver/bookings">View Booking</a>
+        <a class="btn ghost" routerLink="/lots">Book Another Spot</a>
+      </div>
+      <app-receipt-download
+        [receiptId]="receipt()?.receiptId || ''"
+        [receiptNumber]="receipt()?.receiptNumber || 'receipt'">
+      </app-receipt-download>
+    } @else {
+      <a class="btn" routerLink="/receipts/history">Go to Receipt History</a>
+    }
+  </div>
+</div>

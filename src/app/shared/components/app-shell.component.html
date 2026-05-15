@@ -1,22 +1,22 @@
 <div class="app-layout">
   <!-- Sidebar -->
-  <aside class="sidebar" [class.open]="sidebarOpen">
+  <aside class="sidebar" [class.open]="sidebarOpen" role="navigation" aria-label="Primary">
     <div class="sidebar-header">
       <div class="logo">
         <div class="logo-box">P</div>
         <span class="logo-text">ParkEase</span>
       </div>
-      <button class="close-sidebar-btn" (click)="sidebarOpen = false">
+      <button class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close menu">
         <span class="material-icons">close</span>
       </button>
     </div>
 
     <nav class="sidebar-nav">
       @for (item of navItems; track item.href) {
-        <a [routerLink]="item.href"
-           routerLinkActive="active"
-           class="nav-item"
-           (click)="sidebarOpen = false">
+          <a [routerLink]="item.href"
+            routerLinkActive="active"
+            class="nav-item"
+            (click)="closeSidebar()">
           <span class="material-icons nav-icon">{{ item.icon }}</span>
           <span class="nav-label">{{ item.label }}</span>
         </a>
@@ -25,7 +25,10 @@
 
     <div class="sidebar-footer">
       <div class="user-pill">
-        <div class="user-avatar">{{ initials }}</div>
+        <div class="user-avatar">
+          <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="User avatar">
+          <span *ngIf="!user?.profilePicUrl">{{ initials }}</span>
+        </div>
         <div class="user-meta">
           <span class="user-name">{{ user?.fullName }}</span>
           <span class="user-role">{{ user?.role | titlecase }}</span>
@@ -38,13 +41,13 @@
   </aside>
 
   <!-- Mobile Backdrop -->
-  <div class="sidebar-backdrop" [class.active]="sidebarOpen" (click)="sidebarOpen = false"></div>
+  <div class="sidebar-backdrop" [class.active]="sidebarOpen" (click)="closeSidebar()" aria-hidden="true"></div>
 
   <div class="main-content">
     <!-- Header -->
     <header class="navbar">
       <div class="navbar-left">
-        <button class="mobile-menu-btn" (click)="sidebarOpen = true">
+        <button class="mobile-menu-btn" (click)="openSidebar()" aria-label="Open menu" [attr.aria-expanded]="sidebarOpen">
           <span class="material-icons">menu</span>
         </button>
         <!-- Logo shown ONLY on mobile when sidebar is hidden -->
@@ -62,7 +65,10 @@
 
         <div class="nav-profile" routerLink="/driver/profile">
           <span class="nav-user-name">{{ user?.fullName }}</span>
-          <div class="nav-avatar">{{ initials }}</div>
+          <div class="nav-avatar">
+            <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="User avatar">
+            <span *ngIf="!user?.profilePicUrl">{{ initials }}</span>
+          </div>
         </div>
       </div>
     </header>

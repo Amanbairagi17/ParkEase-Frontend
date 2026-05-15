@@ -1,0 +1,101 @@
+.receipt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.receipt-number {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.receipt-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.status.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status.failed {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.status.pending {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.card-body {
+  display: grid;
+  gap: 8px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.label {
+  color: var(--text-muted);
+}
+
+.value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.amount {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.link-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--text-on-primary);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.link-btn:hover {
+  background: var(--primary-hover);
+}

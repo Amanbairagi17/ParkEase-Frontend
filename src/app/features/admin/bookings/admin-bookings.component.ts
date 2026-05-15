@@ -23,20 +23,31 @@ export class AdminBookingsComponent implements OnInit {
     { label: 'Active', value: 'ACTIVE' },
     { label: 'Completed', value: 'COMPLETED' },
     { label: 'Cancelled', value: 'CANCELLED' },
-    { label: 'Expired', value: 'EXPIRED' },
+    // Booking tabs are grouped on the frontend; backend returns raw statuses only.
   ];
 
   get filtered(): Booking[] {
     if (this.activeTab === 'all') return this.bookings;
-    if (this.activeTab === 'ACTIVE') return this.bookings.filter(b => b.status === 'RESERVED' || b.status === 'CHECKED_IN');
+    if (this.activeTab === 'ACTIVE') {
+      return this.bookings.filter(b => [
+        'RESERVED',
+        'ACTIVE'
+      ].includes(b.status));
+    }
     return this.bookings.filter(b => b.status === this.activeTab);
   }
 
   count(tab: string): number {
     if (tab === 'all') return this.bookings.length;
-    if (tab === 'ACTIVE') return this.bookings.filter(b => b.status === 'RESERVED' || b.status === 'CHECKED_IN').length;
+    if (tab === 'ACTIVE') {
+      return this.bookings.filter(b => [
+        'RESERVED',
+        'ACTIVE'
+      ].includes(b.status)).length;
+    }
     return this.bookings.filter(b => b.status === tab).length;
   }
+
 
   ngOnInit(): void {
     this.bookingService.getActive().pipe(catchError(() => of([]))).subscribe(b => {
