@@ -59,7 +59,7 @@
         </div>
 
         <div class="action-bar">
-          <a routerLink="/driver/bookings/new" [queryParams]="{lotId: lot.lotId}" class="book-btn">
+          <a [routerLink]="['/driver/bookings']" [queryParams]="{openNewBooking: true, lotId: lot.lotId}" class="book-btn">
             <span class="material-icons">calendar_today</span>
             Book a Spot
           </a>
@@ -125,7 +125,7 @@
                 <span class="floor">Floor {{ s.floor }}</span>
               </div>
               <div class="spot-price">₹{{ s.pricePerHour }}/hr</div>
-              <button class="select-spot-btn" [routerLink]="['/driver/bookings/new']" [queryParams]="{lotId: lot.lotId, spotId: s.spotId}">
+              <button class="select-spot-btn" [routerLink]="['/driver/bookings']" [queryParams]="{openNewBooking: true, lotId: lot.lotId, spotId: s.spotId}">
                 Select
               </button>
             </div>

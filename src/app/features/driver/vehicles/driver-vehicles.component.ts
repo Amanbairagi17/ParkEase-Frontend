@@ -22,8 +22,17 @@ export class DriverVehiclesComponent implements OnInit {
   vehicles: Vehicle[] = [];
   loading = true;
   showForm = false;
+  selectedVehicle: Vehicle | null = null;
   submitting = false;
   error = '';
+
+  viewVehicleDetails(vehicle: Vehicle): void {
+    this.selectedVehicle = vehicle;
+  }
+
+  closeVehicleDetails(): void {
+    this.selectedVehicle = null;
+  }
 
   form = this.fb.nonNullable.group({
     licensePlate: ['', [Validators.required, Validators.pattern(/^[A-Z0-9\s-]{5,15}$/i)]],
@@ -129,6 +138,23 @@ export class DriverVehiclesComponent implements OnInit {
 
   formatVehicleType(type: string): string {
     return type ? type.replace('_', ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
+  }
+
+  getValidColor(colorStr: string): string {
+    if (!colorStr) return '#64748b';
+    const firstColor = colorStr.split(/[\s\-_/]/)[0].toLowerCase();
+    const validColors = [
+      'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 
+      'white', 'black', 'grey', 'gray', 'silver', 'gold', 'navy', 'teal', 
+      'cyan', 'magenta', 'lime', 'olive', 'maroon', 'indigo', 'violet'
+    ];
+    if (validColors.includes(firstColor)) {
+      return firstColor;
+    }
+    if (colorStr.startsWith('#') || colorStr.startsWith('rgb')) {
+      return colorStr;
+    }
+    return '#64748b';
   }
 
   private extractArray(res: any): any[] {

@@ -20,145 +20,149 @@
         </span>
       </div>
 
-      <div class="info-sections">
-        <!-- Vehicle Card -->
-        <div class="info-card">
-          <div class="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 .99-.45 1-.99L6 17h1.5v2.99c0 .54.45.99 1 .99h3c.55 0 .99-.45 1-.99V17H15v.99c0 .54.45.99 1 .99h1c.55 0 .45-.45 1-1l1-5z"/>
-            </svg>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">Vehicle Information</h3>
-            <div class="plate-large">{{ booking.vehiclePlate }}</div>
-            <div class="vehicle-type">{{ booking.vehicleType | titlecase }}</div>
-          </div>
-        </div>
-
-        <!-- Parking Card -->
-        <div class="info-card">
-          <div class="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18 3H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H5V5h13v12z"/>
-            </svg>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">Parking Spot</h3>
-            <div class="spot-info">
-              Lot ID: {{ booking.lotId }} • Spot ID: {{ booking.spotId }}
+      <div class="booking-unified-card">
+        <!-- Left Pane: Details -->
+        <div class="unified-details-pane">
+          <!-- Row 1: Location & Vehicle -->
+          <div class="unified-row space-between">
+            <div class="detail-section location">
+              <span class="section-badge">
+                <span class="material-icons">location_on</span>Location
+              </span>
+              <h2 class="lot-name-large">{{ booking.lotName || ('Parking Lot #' + booking.lotId) }}</h2>
+              <div class="spot-badge-detail">Spot ID: {{ booking.spotId }}</div>
+            </div>
+            
+            <div class="detail-section vehicle">
+              <span class="section-badge">
+                <span class="material-icons">directions_car</span>Vehicle
+              </span>
+              <div class="plate-large">{{ booking.vehiclePlate }}</div>
+              <div class="vehicle-type">{{ booking.vehicleType | titlecase }}</div>
             </div>
           </div>
-        </div>
-
-        <!-- Timing Card -->
-        <div class="info-card">
-          <div class="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">Booking Duration</h3>
-            <div class="timing">
-              <div class="time">{{ (booking.checkInTime || booking.startTime) | date:'MMM dd, h:mm a' }}</div>
-              <div class="time-separator">to</div>
-              <div class="time">{{ (booking.checkOutTime || booking.endTime) | date:'MMM dd, h:mm a' }}</div>
+          
+          <div class="divider-horizontal"></div>
+          
+          <!-- Row 2: Duration -->
+          <div class="detail-section duration">
+            <span class="section-badge">
+              <span class="material-icons">schedule</span>Duration
+            </span>
+            <div class="timing-timeline">
+              <div class="timeline-item start">
+                <span class="timeline-dot start"></span>
+                <div class="timeline-content">
+                  <span class="timeline-label">Start Time</span>
+                  <span class="timeline-value">{{ (booking.checkInTime || booking.startTime) | date:'MMM dd, yyyy • h:mm a' }}</span>
+                </div>
+              </div>
+              <div class="timeline-item end">
+                <span class="timeline-dot end"></span>
+                <div class="timeline-content">
+                  <span class="timeline-label">End Time</span>
+                  <span class="timeline-value">{{ (booking.checkOutTime || booking.endTime) | date:'MMM dd, yyyy • h:mm a' }}</span>
+                </div>
+              </div>
             </div>
-            <div class="booking-meta">
-              <div class="booking-type">{{ booking.bookingType.replace('_', ' ') | titlecase }} ({{ booking.pricingType || 'HOURLY' }} Plan)</div>
+            
+            <div class="booking-meta-row">
+              <span class="booking-type-pill">{{ booking.bookingType.replace('_', ' ') | titlecase }}</span>
+              <span class="pricing-plan-pill">{{ booking.pricingType || 'HOURLY' }} Plan</span>
               @if (canExtend(booking)) {
-                <button class="btn-extend" (click)="showExtendModal = true">
+                <button class="btn-extend-action" (click)="showExtendModal = true">
                   <span class="material-icons">add_alarm</span>
-                  Extend
+                  Extend Stay
                 </button>
               }
             </div>
           </div>
         </div>
-
-        <!-- Extension Modal -->
-        @if (showExtendModal) {
-          <div class="modal-overlay" (click)="showExtendModal = false">
-            <div class="modal-card" (click)="$event.stopPropagation()">
-              <h3>Extend Your Stay</h3>
-              <p>Current End Time: {{ booking.endTime | date:'MMM dd, h:mm a' }}</p>
-              
-              <div class="form-group">
-                <label>New End Time</label>
-                <input type="datetime-local" [(ngModel)]="extensionTime" [min]="booking.endTime">
-              </div>
-
-              <div class="modal-actions">
-                <button class="btn-secondary" (click)="showExtendModal = false">Cancel</button>
-                <button class="btn-primary" (click)="extendStay()" [disabled]="!extensionTime || processing">
-                  {{ processing ? 'Processing...' : 'Confirm Extension' }}
-                </button>
-              </div>
-            </div>
+        
+        <!-- Right Pane: Payment / Financial Summary -->
+        <div class="unified-payment-pane">
+          <div class="payment-header">
+            <span class="section-badge">
+              <span class="material-icons">payments</span>Payment
+            </span>
+            <h3>Amount Summarized</h3>
           </div>
-        }
-
-        <!-- Payment Card -->
-        <div class="info-card payment-card">
-          <div class="card-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5 .67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-            </svg>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">Payment Summary</h3>
-
+          
+          <div class="amount-glowing-container">
             <div class="amount-large">
               {{ (booking.finalAmount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-2' }}
             </div>
-
-            @if ((getRemainingDue(booking)) > 0) {
-              <div class="pending-badge" role="status" aria-live="polite">
-                <span class="material-icons">warning</span>
-                Additional payment required: {{ getRemainingDue(booking) | currency:'INR':'symbol':'1.0-2' }}
-              </div>
-              <div class="payment-breakdown">
-                <div class="breakdown-row">
-                  <span>Paid</span>
-                  <strong>{{ (booking.paidAmount ?? booking.amount ?? 0) | currency:'INR':'symbol':'1.0-2' }}</strong>
-                </div>
-                <div class="breakdown-row">
-                  <span>Remaining</span>
-                  <strong>{{ getRemainingDue(booking) | currency:'INR':'symbol':'1.0-2' }}</strong>
-                </div>
-              </div>
-            } @else {
-              @if (isPaid(booking)) {
-                <div class="paid-badge">
-                  <span class="material-icons">check_circle</span>
-                  SUCCESS
-                </div>
-              }
-            }
-
-            @if (canPay(booking)) {
-              <button class="pay-now-btn" (click)="payNow(booking)" [disabled]="processing">
-                <span class="material-icons">payments</span>
-                Pay {{ getRemainingDue(booking) > 0 ? 'Remaining' : 'Now' }}
-              </button>
-            }
-
-
-            @if (receipt) {
-              <div class="receipt-actions">
-                <app-receipt-download [receiptId]="receipt.receiptId" [receiptNumber]="receipt.receiptNumber"></app-receipt-download>
-              </div>
-            }
-
-            @if (qrCodeUrl) {
-              <div class="qr-section">
-                <img [src]="qrCodeUrl" alt="Payment QR Code">
-                <p>Scan to Pay via UPI</p>
-              </div>
-            }
           </div>
+
+          @if ((getRemainingDue(booking)) > 0) {
+            <div class="pending-due-container" role="status" aria-live="polite">
+              <div class="pending-badge">
+                <span class="material-icons">warning</span>
+                Due: {{ getRemainingDue(booking) | currency:'INR':'symbol':'1.0-2' }}
+              </div>
+            </div>
+            <div class="payment-breakdown">
+              <div class="breakdown-row">
+                <span>Total Amount</span>
+                <strong>{{ (booking.finalAmount ?? booking.totalAmount) | currency:'INR':'symbol':'1.0-2' }}</strong>
+              </div>
+              <div class="breakdown-row">
+                <span>Paid So Far</span>
+                <strong>{{ (booking.paidAmount ?? booking.amount ?? 0) | currency:'INR':'symbol':'1.0-2' }}</strong>
+              </div>
+            </div>
+          } @else {
+            @if (isPaid(booking)) {
+              <div class="paid-badge-large">
+                <span class="material-icons">verified</span>
+                Payment Verified
+              </div>
+            }
+          }
+
+          @if (canPay(booking)) {
+            <button class="pay-now-btn" (click)="payNow(booking)" [disabled]="processing">
+              <span class="material-icons">payments</span>
+              Pay {{ getRemainingDue(booking) > 0 ? 'Remaining' : 'Now' }}
+            </button>
+          }
+
+          @if (receipt) {
+            <div class="receipt-actions-unified">
+              <app-receipt-download [receiptId]="receipt.receiptId" [receiptNumber]="receipt.receiptNumber"></app-receipt-download>
+            </div>
+          }
+
+          @if (qrCodeUrl) {
+            <div class="qr-section-unified">
+              <img [src]="qrCodeUrl" alt="Payment QR Code">
+              <p>Scan to Pay via UPI</p>
+            </div>
+          }
         </div>
       </div>
+
+      <!-- Extension Modal -->
+      @if (showExtendModal) {
+        <div class="modal-overlay" (click)="showExtendModal = false">
+          <div class="modal-card" (click)="$event.stopPropagation()">
+            <h3>Extend Your Stay</h3>
+            <p>Current End Time: {{ booking.endTime | date:'MMM dd, h:mm a' }}</p>
+            
+            <div class="form-group">
+              <label>New End Time</label>
+              <input type="datetime-local" [(ngModel)]="extensionTime" [min]="booking.endTime">
+            </div>
+
+            <div class="modal-actions">
+              <button class="btn-secondary" (click)="showExtendModal = false">Cancel</button>
+              <button class="btn-primary" (click)="extendStay()" [disabled]="!extensionTime || processing">
+                {{ processing ? 'Processing...' : 'Confirm Extension' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
 
       @if (canCancel(booking) || canCheckIn(booking) || canCheckout(booking)) {
         <footer class="actions-section">

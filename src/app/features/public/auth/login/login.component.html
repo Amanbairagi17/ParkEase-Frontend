@@ -31,6 +31,7 @@
           <span class="err" *ngIf="f['password'].touched && f['password'].errors?.['required']">Password is required</span>
         </div>
 
+        @if (message) { <div class="alert-success">{{ message }}</div> }
         @if (error) { <div class="alert-error">{{ error }}</div> }
 
         <div class="form-footer-link">

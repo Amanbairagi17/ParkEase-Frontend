@@ -1,184 +1,243 @@
-<div class="page-header animate-in">
-  <div class="header-main">
-    <h1 class="page-title">Profile Settings</h1>
-    <p class="page-subtitle">Manage your personal information, contact details and account status.</p>
-  </div>
-</div>
+<div class="profile-page-container animate-in">
+  <header class="page-header">
+    <div class="header-content">
+      <div class="title-group">
+        <h1>Profile Settings</h1>
+        <p>Manage your personal information, security preferences, and account status.</p>
+      </div>
+    </div>
+  </header>
 
-<div class="profile-layout animate-in">
-  <div class="card profile-main-card">
-    <div class="profile-header-area">
-      <div class="avatar-stack">
-        <div class="avatar-large">
-          <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar">
-          <div *ngIf="!avatarUrl" class="avatar-placeholder">{{ initials }}</div>
-          <button class="edit-avatar-btn" title="Change Avatar" (click)="fileInput.click()">
-            <span class="material-icons">camera_alt</span>
+  <div class="profile-layout">
+    <!-- Left Column: Settings Form -->
+    <div class="main-content-area">
+      <!-- Avatar Section -->
+      <div class="card premium-card avatar-section">
+        <div class="avatar-stack">
+          <div class="avatar-container">
+            <img *ngIf="avatarUrl" [src]="avatarUrl" alt="Avatar" class="avatar-img">
+            <div *ngIf="!avatarUrl" class="avatar-placeholder">{{ initials }}</div>
+            <button class="edit-avatar-btn" title="Change Avatar" (click)="fileInput.click()">
+              <span class="material-icons">photo_camera</span>
+            </button>
+          </div>
+
+          <div class="upload-tools">
+            <h3 class="section-title">Profile Picture</h3>
+            <p class="section-desc">Upload a new avatar. Larger images will be resized.</p>
+            
+            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
+
+            <div class="dropzone" [class.drag-active]="dragActive"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 (click)="fileInput.click()">
+              <div class="drop-icon">
+                <span class="material-icons">cloud_upload</span>
+              </div>
+              <div class="dropzone-text">
+                <span class="highlight">Click to upload</span> or drag and drop
+                <small>SVG, PNG, JPG or GIF (max. 5MB)</small>
+              </div>
+            </div>
+
+            <div class="upload-actions" *ngIf="selectedFile || user?.profilePicUrl">
+              <button type="button" class="btn btn-primary btn-sm"
+                      *ngIf="selectedFile"
+                      (click)="uploadProfilePicture()" [disabled]="uploading">
+                <span class="material-icons" *ngIf="!uploading">check</span>
+                <span class="spinner-sm" *ngIf="uploading"></span>
+                {{ uploading ? 'Saving...' : 'Apply Image' }}
+              </button>
+              <button type="button" class="btn btn-ghost btn-sm"
+                      *ngIf="selectedFile"
+                      (click)="clearSelection()" [disabled]="uploading">
+                Cancel
+              </button>
+              <button type="button" class="btn btn-danger btn-sm"
+                      *ngIf="!selectedFile && user?.profilePicUrl"
+                      (click)="deleteProfilePicture()" [disabled]="deleting">
+                <span class="material-icons" *ngIf="!deleting">delete_outline</span>
+                <span class="spinner-sm" *ngIf="deleting"></span>
+                {{ deleting ? 'Removing...' : 'Remove Image' }}
+              </button>
+            </div>
+
+            <div class="field-error mt-2" *ngIf="fileError">
+              <span class="material-icons">error</span> {{ fileError }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Form -->
+      <form [formGroup]="form" (ngSubmit)="save()" class="card premium-card form-section">
+        <div class="form-header">
+          <h3 class="section-title">Personal Information</h3>
+          <p class="section-desc">Update your contact details and identity information.</p>
+        </div>
+
+        <div class="form-grid">
+          <!-- Full Name -->
+          <div class="form-group">
+            <label class="floating-label">Full Name</label>
+            <div class="input-with-icon">
+              <span class="material-icons input-icon">person_outline</span>
+              <input formControlName="fullName" class="premium-input" placeholder="Your full name">
+            </div>
+            <div class="error-text" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+              Please enter a valid full name (3-50 chars).
+            </div>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group">
+            <label class="floating-label">Email Address</label>
+            <div class="input-with-icon">
+              <span class="material-icons input-icon">mail_outline</span>
+              <input formControlName="email" type="email" class="premium-input" placeholder="name@company.com">
+            </div>
+            <div class="error-text" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+              Please enter a valid email address.
+            </div>
+          </div>
+
+          <!-- Phone Number -->
+          <div class="form-group">
+            <label class="floating-label">Phone Number</label>
+            <div class="input-with-icon">
+              <span class="material-icons input-icon">phone</span>
+              <input formControlName="phone" type="tel" class="premium-input" placeholder="+91 00000 00000">
+            </div>
+          </div>
+
+          <!-- Address -->
+          <div class="form-group address-group">
+            <label class="floating-label">Mailing Address</label>
+            <div class="input-with-icon">
+              <span class="material-icons input-icon">home_work</span>
+              <input formControlName="address" class="premium-input" placeholder="Building, Street, City...">
+            </div>
+          </div>
+
+          <!-- Driver Specific Fields -->
+          <ng-container *ngIf="user?.role === 'DRIVER'">
+            <div class="form-divider"></div>
+            
+            <div class="form-group">
+              <label class="floating-label">Vehicle Plate</label>
+              <div class="input-with-icon">
+                <span class="material-icons input-icon">directions_car</span>
+                <input formControlName="vehiclePlate" class="premium-input font-mono uppercase plate-input" placeholder="MH 01 AB 1234">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="floating-label">Vehicle Category</label>
+              <div class="input-with-icon select-wrapper">
+                <span class="material-icons input-icon">category</span>
+                <select formControlName="vehicleType" class="premium-input custom-select">
+                  <option value="">Select category</option>
+                  <option value="2W">Two Wheeler (Bike/Scooter)</option>
+                  <option value="4W">Four Wheeler (Car/SUV)</option>
+                </select>
+                <span class="material-icons dropdown-icon">expand_more</span>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="form-footer">
+          <div class="status-zone">
+            <div *ngIf="success" class="alert-toast success">
+              <span class="material-icons">check_circle</span>
+              Changes saved successfully
+            </div>
+            <div *ngIf="error" class="alert-toast error">
+              <span class="material-icons">error</span>
+              {{ error }}
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary save-btn" [disabled]="form.invalid || saving">
+            <span class="spinner-sm" *ngIf="saving"></span>
+            <span class="material-icons" *ngIf="!saving">save</span>
+            {{ saving ? 'Saving...' : 'Save Changes' }}
           </button>
         </div>
-
-        <div class="upload-tools">
-          <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" hidden>
-
-          <div class="dropzone" [class.drag-active]="dragActive"
-               (dragover)="onDragOver($event)"
-               (dragleave)="onDragLeave($event)"
-               (drop)="onDrop($event)"
-               (click)="fileInput.click()">
-            <span class="material-icons">cloud_upload</span>
-            <div class="dropzone-text">
-              <strong>Drag & drop</strong> or click to upload
-              <small>JPG, PNG, WEBP up to 5 MB</small>
-            </div>
-          </div>
-
-          <div class="upload-actions">
-            <button type="button" class="btn btn-primary btn-sm"
-                    (click)="uploadProfilePicture()" [disabled]="!selectedFile || uploading">
-              <span class="material-icons" *ngIf="!uploading">upload</span>
-              <span class="spinner-sm" *ngIf="uploading"></span>
-              {{ uploading ? 'Uploading...' : 'Upload' }}
-            </button>
-            <button type="button" class="btn btn-ghost btn-sm"
-                    (click)="clearSelection()" [disabled]="!selectedFile || uploading">
-              Clear
-            </button>
-            <button type="button" class="btn btn-danger btn-sm"
-                    (click)="deleteProfilePicture()" [disabled]="!user?.profilePicUrl || deleting">
-              <span class="material-icons" *ngIf="!deleting">delete</span>
-              <span class="spinner-sm" *ngIf="deleting"></span>
-              {{ deleting ? 'Removing...' : 'Remove' }}
-            </button>
-          </div>
-
-          <div class="file-info" *ngIf="selectedFile">
-            {{ selectedFile.name }} ({{ selectedFileSize }})
-          </div>
-          <div class="field-error" *ngIf="fileError">{{ fileError }}</div>
-        </div>
-      </div>
-      <div class="user-branding">
-        <h2 class="user-display-name">{{ user?.fullName }}</h2>
-        <span class="badge" [ngClass]="'badge-' + user?.role?.toLowerCase()">
-          {{ user?.role | titlecase }}
-        </span>
-      </div>
+      </form>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="save()" class="modern-form">
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="label">Full Name</label>
-          <div class="input-wrapper">
-            <span class="material-icons prefix">person</span>
-            <input formControlName="fullName" class="input-control" placeholder="Enter your full name">
+    <!-- Right Column: Meta Panel -->
+    <div class="side-panel-area">
+      <!-- Branding / Role Card -->
+      <div class="card premium-card branding-card">
+        <div class="branding-header">
+          <div class="role-badge" [ngClass]="user?.role?.toLowerCase() || 'unknown'">
+            <span class="material-icons">admin_panel_settings</span>
+            {{ user?.role | titlecase }}
           </div>
-          <div class="field-error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
-            Please enter a valid full name (3-50 chars).
-          </div>
-        </div>
-
-        <div class="form-field">
-          <label class="label">Email Address</label>
-          <div class="input-wrapper">
-            <span class="material-icons prefix">mail</span>
-            <input formControlName="email" type="email" class="input-control" placeholder="name@example.com">
-          </div>
-          <div class="field-error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
-            Please enter a valid email address.
-          </div>
-        </div>
-
-        <div class="form-field">
-          <label class="label">Phone Number</label>
-          <div class="input-wrapper">
-            <span class="material-icons prefix">call</span>
-            <input formControlName="phone" type="tel" class="input-control" placeholder="10-digit mobile number">
-          </div>
-        </div>
-
-        <div class="form-field">
-          <label class="label">Mailing Address</label>
-          <div class="input-wrapper">
-            <span class="material-icons prefix">home</span>
-            <input formControlName="address" class="input-control" placeholder="House no, Street, City...">
-          </div>
-        </div>
-
-        <!-- Driver Specific Fields -->
-        <ng-container *ngIf="user?.role === 'DRIVER'">
-          <div class="form-field">
-            <label class="label">Primary Vehicle Plate</label>
-            <div class="input-wrapper">
-              <span class="material-icons prefix">directions_car</span>
-              <input formControlName="vehiclePlate" class="input-control font-mono uppercase" placeholder="XX 00 XX 0000">
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label class="label">Vehicle Category</label>
-            <div class="input-wrapper">
-              <span class="material-icons prefix">category</span>
-              <select formControlName="vehicleType" class="input-control">
-                <option value="">Select category</option>
-                <option value="2W">Two Wheeler (Bike/Scooter)</option>
-                <option value="4W">Four Wheeler (Car/SUV)</option>
-              </select>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-
-      <div class="form-footer">
-        <div class="status-messages">
-          <div *ngIf="success" class="alert alert-success animate-in">
-            <span class="material-icons">check_circle</span>
-            Profile updated successfully
-          </div>
-          <div *ngIf="error" class="alert alert-error animate-in">
-            <span class="material-icons">error_outline</span>
-            {{ error }}
-          </div>
+          <h2 class="display-name">{{ user?.fullName || 'User' }}</h2>
+          <p class="display-email">{{ user?.email }}</p>
         </div>
         
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving">
-          <span class="material-icons" *ngIf="!saving">save</span>
-          <span class="spinner-sm" *ngIf="saving"></span>
-          {{ saving ? 'Saving Changes...' : 'Save Profile' }}
-        </button>
+        <div class="branding-stats">
+          <div class="stat-box">
+            <span class="stat-label">Status</span>
+            <span class="status-pill verified">
+              <span class="material-icons">verified</span> Active
+            </span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Joined</span>
+            <span class="stat-value">{{ user?.createdAt | date:'MMM yyyy' }}</span>
+          </div>
+        </div>
       </div>
-    </form>
-  </div>
 
-  <div class="side-panel">
-    <div class="card account-meta-card">
-      <h3 class="section-title">Account Security</h3>
-      <div class="meta-item">
-        <span class="meta-label">Account Created</span>
-        <span class="meta-value">{{ user?.createdAt | date:'mediumDate' }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">System Role</span>
-        <span class="meta-value text-primary font-bold">{{ user?.role }}</span>
-      </div>
-      <div class="meta-item">
-        <span class="meta-label">Verification Status</span>
-        <span class="status-pill verified">
-          <span class="material-icons">verified</span> Verified
-        </span>
-      </div>
-      
-      <div class="panel-actions">
-        <button class="btn btn-ghost btn-sm btn-full" (click)="logout()">
-          <span class="material-icons">logout</span>
-          Sign Out of ParkEase
-        </button>
-      </div>
-    </div>
+      <!-- Security / Actions Card -->
+      <div class="card premium-card security-card">
+        <h3 class="section-title">Security & Access</h3>
+        
+        <div class="security-list">
+          <div class="security-item">
+            <div class="sec-icon"><span class="material-icons">password</span></div>
+            <div class="sec-info">
+              <h4>Password</h4>
+              <p>Last changed 3 months ago</p>
+            </div>
+            <button class="btn-text">Update</button>
+          </div>
+          
+          <div class="security-item">
+            <div class="sec-icon"><span class="material-icons">shield</span></div>
+            <div class="sec-info">
+              <h4>2FA Security</h4>
+              <p>Not enabled yet</p>
+            </div>
+            <button class="btn-text">Enable</button>
+          </div>
+        </div>
 
-    <div class="info-note card">
-      <span class="material-icons text-info">info</span>
-      <p>Updating your email address may require you to re-verify your account for security purposes.</p>
+        <div class="panel-actions">
+          <button class="btn btn-danger-outline btn-full logout-btn" (click)="logout()">
+            <span class="material-icons">logout</span>
+            Sign Out Securely
+          </button>
+        </div>
+      </div>
+
+      <!-- Info Note -->
+      <div class="info-note-card">
+        <div class="note-icon">
+          <span class="material-icons">info</span>
+        </div>
+        <div class="note-content">
+          <h4>Account Notice</h4>
+          <p>Updating your email address may require you to re-verify your identity for security purposes.</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

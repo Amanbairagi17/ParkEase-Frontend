@@ -1,37 +1,37 @@
-<div class="receipt-card card">
+<div class="receipt-card">
   <div class="card-header">
     <div class="meta">
       <span class="receipt-number">{{ receipt.receiptNumber }}</span>
-      <span class="receipt-date">{{ receipt.generatedAt | date:'medium' }}</span>
+      <span class="receipt-date">{{ receipt.generatedAt | date:'MMM dd, yyyy • h:mm a' }}</span>
     </div>
-    <span class="status" [ngClass]="receipt.paymentStatus?.toLowerCase()">
+    <span class="status-badge" [ngClass]="(receipt.paymentStatus || '').toLowerCase()">
       {{ receipt.paymentStatus || 'UNKNOWN' }}
     </span>
   </div>
 
   <div class="card-body">
     <div class="info-row">
-      <span class="label">Parking</span>
+      <span class="label">Parking Location</span>
       <span class="value">{{ receipt.parkingName }}</span>
     </div>
     <div class="info-row">
-      <span class="label">Vehicle</span>
-      <span class="value">{{ receipt.vehicleNumber }}</span>
+      <span class="label">Vehicle Plate</span>
+      <span class="value plate-badge-small">{{ receipt.vehicleNumber }}</span>
     </div>
     <div class="info-row">
-      <span class="label">Slot</span>
-      <span class="value">{{ receipt.slotNumber }}</span>
+      <span class="label">Assigned Slot</span>
+      <span class="value slot-badge-small">{{ receipt.slotNumber }}</span>
     </div>
   </div>
 
   <div class="card-footer">
-    <div class="amount">
-      INR {{ receipt.amountPaid | number:'1.2-2' }}
+    <div class="amount-container">
+      <span class="amount-label">Amount Paid</span>
+      <div class="amount-val">INR {{ receipt.amountPaid | number:'1.2-2' }}</div>
     </div>
-    <a class="link-btn" [routerLink]="['/receipts', receipt.receiptId]">View</a>
-    <app-receipt-download
-      [receiptId]="receipt.receiptId"
-      [receiptNumber]="receipt.receiptNumber">
-    </app-receipt-download>
+    <a class="view-receipt-btn" [routerLink]="['/receipts', receipt.receiptId]">
+      <span>View Details</span>
+      <span class="material-icons">chevron_right</span>
+    </a>
   </div>
 </div>

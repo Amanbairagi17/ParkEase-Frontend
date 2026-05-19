@@ -29,6 +29,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/public/auth/oauth-success/oauth-success.component').then(m => m.OAuthSuccessComponent)
   },
   {
+    path: 'verify',
+    loadComponent: () => import('./features/public/auth/verify/verify.component').then(m => m.VerifyComponent)
+  },
+  {
     path: 'lots',
     loadComponent: () => import('./features/public/search-lots/search-lots.component').then(m => m.SearchLotsComponent)
   },
@@ -163,10 +167,6 @@ export const routes: Routes = [
       {
         path: 'analytics',
         loadComponent: () => import('./features/admin/analytics/admin-analytics.component').then(m => m.AdminAnalyticsComponent)
-      },
-      {
-        path: 'audit-logs',
-        loadComponent: () => import('./features/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent)
       },
       {
         path: 'broadcast',

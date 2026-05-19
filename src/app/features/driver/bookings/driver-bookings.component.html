@@ -1,18 +1,13 @@
+<div class="bookings-container">
 <div class="page-header animate-in">
   <div class="header-main">
     <h1 class="page-title">My Bookings</h1>
     <p class="page-subtitle">Track your active parking sessions and reservation history.</p>
   </div>
-  <div class="header-actions">
-    <button routerLink="/driver/bookings/new" class="btn btn-primary shadow-glow">
-      <span class="material-icons">add_circle</span>
-      New Reservation
-    </button>
-  </div>
 </div>
 
 <div class="bookings-layout animate-in">
-  <!-- Status Navigation -->
+  <!-- Status Navigation and Action Row -->
   <div class="controls-bar">
     <div class="pill-nav">
       @for (tab of tabs; track tab.value) {
@@ -24,6 +19,11 @@
         </button>
       }
     </div>
+    
+    <button (click)="openNewBookingModal()" class="btn btn-primary btn-sm btn-new-reservation shadow-glow">
+      <span class="material-icons">add_circle</span>
+      New Reservation
+    </button>
   </div>
 
   <!-- Bookings List -->
@@ -40,14 +40,14 @@
           </div>
           <h3>No Bookings Found</h3>
           <p>You don't have any bookings in the <strong>{{ activeTab() | lowercase }}</strong> category yet.</p>
-          <button routerLink="/driver/bookings/new" class="btn btn-primary btn-sm">
+          <button (click)="openNewBookingModal()" class="btn btn-primary btn-sm">
             Find Parking Spot
           </button>
         </div>
       } @else {
         <div class="booking-list-container">
           @for (booking of filtered(); track booking.bookingId) {
-            <div class="card booking-entry-card" [routerLink]="['/driver/bookings', booking.bookingId]">
+            <div class="card booking-entry-card" (click)="openBookingDetails(booking)">
               <div class="entry-header">
                 <div class="vehicle-info">
                   <div class="plate-box">{{ booking.vehiclePlate }}</div>
@@ -94,3 +94,139 @@
     }
   </div>
 </div>
+</div>
+
+  <!-- Booking Info Pop-up Modal Overlay -->
+  <div class="modal-backdrop" *ngIf="selectedBooking()" (click)="closeBookingDetails()">
+    <div class="modal-content booking-detail-modal animate-pop" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="detail-header-title">
+          <span class="material-icons title-icon">bookmark_border</span>
+          <h3>Booking Details</h3>
+        </div>
+        <button type="button" class="close-modal-btn" (click)="closeBookingDetails()" aria-label="Close modal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="booking-detail-body">
+        <div class="detail-hero">
+          <div class="hero-icon-circle">
+            <span class="material-icons">local_parking</span>
+          </div>
+          <h2>Booking #{{ selectedBooking()?.bookingId }}</h2>
+          <span [ngClass]="getStatusClass(selectedBooking()!.status)" class="modal-status-badge">
+            {{ selectedBooking()?.status }}
+          </span>
+        </div>
+
+        <div class="specs-list">
+          <div class="spec-row">
+            <span class="spec-label">Parking Lot</span>
+            <span class="spec-value">{{ selectedBooking()?.lotName || ('Parking Lot #' + selectedBooking()?.lotId) }}</span>
+          </div>
+
+          <div class="spec-row" *ngIf="selectedBooking()?.spotId">
+            <span class="spec-label">Parking Spot</span>
+            <span class="spec-value plate-sticker">Spot ID: {{ selectedBooking()?.spotId }}</span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Vehicle Plate</span>
+            <span class="spec-value plate-sticker">{{ selectedBooking()?.vehiclePlate }}</span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Duration</span>
+            <span class="spec-value">{{ getDuration(selectedBooking()!) }}</span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Started At</span>
+            <span class="spec-value date-text">
+              <span class="material-icons">calendar_today</span>
+              {{ selectedBooking()?.startTime | date:'MMM d, y, h:mm a' }}
+            </span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Ended At</span>
+            <span class="spec-value date-text">
+              <span class="material-icons">calendar_today</span>
+              {{ selectedBooking()?.endTime | date:'MMM d, y, h:mm a' }}
+            </span>
+          </div>
+
+          <div class="spec-row" *ngIf="selectedBooking()?.checkInTime">
+            <span class="spec-label">Checked In</span>
+            <span class="spec-value date-text">
+              <span class="material-icons">login</span>
+              {{ selectedBooking()?.checkInTime | date:'MMM d, y, h:mm a' }}
+            </span>
+          </div>
+
+          <div class="spec-row" *ngIf="selectedBooking()?.checkOutTime">
+            <span class="spec-label">Checked Out</span>
+            <span class="spec-value date-text">
+              <span class="material-icons">logout</span>
+              {{ selectedBooking()?.checkOutTime | date:'MMM d, y, h:mm a' }}
+            </span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Total Price</span>
+            <span class="spec-value amount-badge">
+              {{ (selectedBooking()?.amount ?? selectedBooking()?.totalAmount) | currency:'INR':'symbol':'1.0-0' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeBookingDetails()">Close</button>
+        
+        <!-- Action Buttons -->
+        <ng-container *ngIf="!actionLoading(); else loader">
+          <button type="button" class="btn-cancel-res" *ngIf="selectedBooking()?.status === 'RESERVED'" (click)="cancelBooking(selectedBooking()!)">
+            <span class="material-icons">cancel</span> Cancel
+          </button>
+          
+          <button type="button" class="btn-checkin-res" *ngIf="selectedBooking()?.status === 'RESERVED'" (click)="checkIn(selectedBooking()!)">
+            <span class="material-icons">check_circle</span> Check In
+          </button>
+          
+          <button type="button" class="btn-checkout-res" *ngIf="selectedBooking()?.status === 'ACTIVE' && !selectedBooking()?.checkOutTime" (click)="checkOut(selectedBooking()!)">
+            <span class="material-icons">exit_to_app</span> Check Out
+          </button>
+          
+          <button type="button" class="btn-checkin-res" *ngIf="selectedBooking()?.status === 'ACTIVE' && selectedBooking()?.checkOutTime && !selectedBooking()?.isPaid" (click)="payNow(selectedBooking()!)">
+            <span class="material-icons">payment</span> Pay Now
+          </button>
+        </ng-container>
+        
+        <ng-template #loader>
+          <span class="action-spinner">Processing...</span>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Booking Modal popup -->
+  @if (showNewBookingModal()) {
+    <div class="modal-backdrop" (click)="closeNewBookingModal()">
+      <div class="modal-content new-booking-modal-container animate-pop" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="detail-header-title">
+            <span class="material-icons title-icon">add_circle</span>
+            <h3>New Reservation</h3>
+          </div>
+          <button type="button" class="close-modal-btn" (click)="closeNewBookingModal()" aria-label="Close modal">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="modal-body scrollable-modal-body">
+          <app-new-booking></app-new-booking>
+        </div>
+      </div>
+    </div>
+  }

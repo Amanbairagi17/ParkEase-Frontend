@@ -8,7 +8,6 @@ const ADMIN_NAV: NavItem[] = [
   { href: '/admin/bookings',      label: 'Bookings',      icon: 'event' },
   { href: '/admin/payments',      label: 'Payments',      icon: 'account_balance_wallet' },
   { href: '/admin/analytics',     label: 'Analytics',     icon: 'bar_chart' },
-  { href: '/admin/audit-logs',    label: 'Audit logs',    icon: 'history' },
   { href: '/admin/notifications', label: 'Notifications', icon: 'notifications' },
   { href: '/admin/broadcast',     label: 'Broadcast',     icon: 'campaign' },
 ];

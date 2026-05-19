@@ -47,7 +47,7 @@ export class RegisterComponent {
       phone: v.phone!,
       role: v.role as User['role'],
     }).subscribe({
-      next: () => this.router.navigate([this.auth.roleRedirect()]),
+      next: () => this.router.navigate(['/login'], { queryParams: { registered: 'true' } }),
       error: (e) => {
         this.error = e?.error?.message || 'Registration failed.';
         this.submitting = false;

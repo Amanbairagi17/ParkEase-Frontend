@@ -142,7 +142,7 @@
   background: var(--bg);
   border: 1px solid var(--surface-border);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: var(--transition);
 }
@@ -150,29 +150,56 @@
 .booking-card:hover {
   border-color: var(--primary);
   background: var(--surface);
-  transform: scale(1.01);
+  transform: scale(1.005);
 }
 
 .booking-main {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.booking-info { display: flex; flex-direction: column; gap: 4px; }
-.plate { font-size: 18px; font-weight: 800; color: var(--text-main); letter-spacing: 0.05em; }
-.lot-name { font-size: 13px; color: var(--text-muted); }
+.booking-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.plate {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: 0.03em;
+}
+
+.dot-separator {
+  color: var(--text-muted);
+  opacity: 0.5;
+  font-size: 12px;
+}
+
+.lot-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
 
 .status-badge {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 
+/* Status colors */
+.status-active { background: var(--primary-soft); color: var(--primary); }
+.status-completed { background: var(--success-soft); color: var(--success); }
+.status-pending { background: #fef9c3; color: #ca8a04; }
+.status-failed { background: #fee2e2; color: #dc2626; }
 .status-reserved { background: var(--primary-soft); color: var(--primary); }
 .status-checked_in { background: var(--success-soft); color: var(--success); }
 
@@ -181,14 +208,14 @@
   justify-content: space-between;
   align-items: center;
   color: var(--text-muted);
-  font-size: 13px;
-  padding-top: 12px;
+  font-size: 12px;
+  padding-top: 8px;
   border-top: 1px solid var(--border);
 }
 
 .time { display: flex; align-items: center; gap: 6px; font-weight: 500; }
-.time span { font-size: 16px; color: var(--primary); }
-.price { font-weight: 800; color: var(--text-main); font-size: 16px; }
+.time span { font-size: 14px; color: var(--primary); }
+.price { font-weight: 800; color: var(--text-main); font-size: 14px; }
 
 /* ── Notifications ─────────────────────────────────────────────────────── */
 

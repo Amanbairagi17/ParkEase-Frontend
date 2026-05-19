@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080/api',
-  gatewayUrl: 'http://localhost:8080'
+  apiUrl: 'http://parkeaseapp.duckdns.org:8080/api',
+  gatewayUrl: 'http://parkeaseapp.duckdns.org:8080'
 };

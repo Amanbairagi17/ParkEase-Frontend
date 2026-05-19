@@ -4,7 +4,7 @@
       <h1>Hello, {{ firstName }}!</h1>
       <p>Welcome back to ParkEase. Here's what's happening today.</p>
     </div>
-    <button routerLink="/driver/bookings/new" class="quick-book-btn">
+    <button [routerLink]="['/driver/bookings']" [queryParams]="{ openNewBooking: true }" class="quick-book-btn">
       <span class="material-icons">add</span>
       Quick Book
     </button>
@@ -69,7 +69,7 @@
               <div class="empty-state">
                 <span class="material-icons">event_busy</span>
                 <p>No active bookings</p>
-                <button routerLink="/driver/bookings/new" class="btn-text">Book now</button>
+                <button [routerLink]="['/driver/bookings']" [queryParams]="{ openNewBooking: true }" class="btn-text">Book now</button>
               </div>
             } @else {
               @for (booking of activeBookings; track booking.bookingId) {
@@ -77,6 +77,7 @@
                   <div class="booking-main">
                     <div class="booking-info">
                       <span class="plate">{{ booking.vehiclePlate }}</span>
+                      <span class="dot-separator">•</span>
                       <span class="lot-name">Lot ID: {{ booking.lotId }}</span>
                     </div>
                     <div class="booking-status">

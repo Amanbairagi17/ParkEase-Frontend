@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, tap, throwError, shareReplay, finalize } from 'rxjs';
 import { Router } from '@angular/router';
 import { User, AuthResponse, LoginResponse } from '../models/types';
 import { normalizeUserId } from '../utils/user-id';
@@ -26,6 +26,8 @@ export class AuthService {
   readonly user$ = new BehaviorSubject<User | null>(this.loadFromStorage().user);
   readonly token$ = new BehaviorSubject<string | null>(this.loadFromStorage().token);
 
+  private refreshSubscription$: Observable<LoginResponse> | null = null;
+
   constructor() {
     const current = this.state$.value;
     if (current.token) {
@@ -44,10 +46,8 @@ export class AuthService {
   register(payload: {
     fullName: string; email: string; password: string;
     phone: string; role: User['role'];
-  }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API}/register`, payload).pipe(
-      tap(res => this.persist(res.user, res.token, res.refreshToken))
-    );
+  }): Observable<any> {
+    return this.http.post<any>(`${this.API}/register`, payload);
   }
 
   login(payload: { email: string; password: string }): Observable<LoginResponse> {
@@ -82,11 +82,19 @@ export class AuthService {
     return this.http.post(`${this.API}/reset-password`, payload, { responseType: 'text' });
   }
 
+  verify(token: string): Observable<string> {
+    return this.http.get(`${this.API}/verify/${token}`, { responseType: 'text' });
+  }
+
   refreshToken(): Observable<LoginResponse> {
+    if (this.refreshSubscription$) {
+      return this.refreshSubscription$;
+    }
+
     const rt = this.state$.value.refreshToken;
     if (!rt) return throwError(() => new Error('No refresh token'));
 
-    return this.http.post<LoginResponse>(`${this.API}/refresh`, { refreshToken: rt }).pipe(
+    this.refreshSubscription$ = this.http.post<LoginResponse>(`${this.API}/refresh`, { refreshToken: rt }).pipe(
       tap(res => {
         const token = res.accessToken || (res as any).token;
 
@@ -94,21 +102,28 @@ export class AuthService {
           const user = this.buildUserFromToken(token, this.currentUser);
           this.persist(user, token, res.refreshToken);
         }
-      })
+      }),
+      finalize(() => {
+        this.refreshSubscription$ = null;
+      }),
+      shareReplay(1)
     );
+
+    return this.refreshSubscription$;
   }
 
   logout(): void {
     const rt = this.state$.value.refreshToken;
 
-    if (rt) {
-      this.http.post(`${this.API}/logout`, { refreshToken: rt }, { responseType: 'text' }).subscribe();
-    }
+    // Clear session immediately to avoid interceptor loops
+    this.clearSession();
 
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.state$.next({ user: null, token: null, refreshToken: null });
-    this.user$.next(null);
-    this.token$.next(null);
+    if (rt) {
+      this.http.post(`${this.API}/logout`, { refreshToken: rt }, { responseType: 'text' }).subscribe({
+        next: () => console.log('Successfully logged out from server'),
+        error: (err) => console.warn('Server logout failed', err)
+      });
+    }
 
     this.router.navigate(['/login']);
   }

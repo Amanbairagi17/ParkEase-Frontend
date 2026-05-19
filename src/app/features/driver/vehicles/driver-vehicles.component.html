@@ -4,18 +4,22 @@
       <h1 class="page-title">My Vehicles</h1>
       <p class="page-subtitle">Manage and view all your registered vehicles</p>
     </div>
-    <button class="add-vehicle-btn" (click)="showForm = !showForm" [class.cancel]="showForm">
-      <span class="material-icons">{{ showForm ? 'close' : 'add' }}</span>
-      {{ showForm ? 'Cancel' : 'Add Vehicle' }}
+    <button class="add-vehicle-btn" (click)="showForm = true">
+      <span class="material-icons">add</span>
+      Add Vehicle
     </button>
   </div>
 
-  <!-- Registration Form -->
-  <div class="registration-section" *ngIf="showForm">
-    <div class="form-card">
-      <div class="form-header">
+  <!-- Registration Modal Overlay -->
+  <div class="modal-backdrop" *ngIf="showForm" (click)="showForm = false">
+    <div class="modal-content animate-pop" (click)="$event.stopPropagation()">
+      <div class="modal-header">
         <h3>Register New Vehicle</h3>
+        <button type="button" class="close-modal-btn" (click)="showForm = false" aria-label="Close modal">
+          <span class="material-icons">close</span>
+        </button>
       </div>
+
       <form [formGroup]="form" (ngSubmit)="submit()" class="vehicle-form">
         <div class="form-grid">
           <div class="form-field">
@@ -77,7 +81,8 @@
           {{ error }}
         </div>
 
-        <div class="form-footer">
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="showForm = false">Cancel</button>
           <button type="submit" class="submit-btn" [disabled]="submitting || form.invalid">
             <span *ngIf="submitting" class="spinner"></span>
             {{ submitting ? 'Registering...' : 'Register Vehicle' }}
@@ -119,31 +124,30 @@
 
   <!-- Vehicle List -->
   <div class="vehicles-grid" *ngIf="!loading && vehicles.length > 0">
-    <div class="vehicle-card" *ngFor="let v of vehicles" [class.ev-card]="v.isEV">
+    <div class="vehicle-card" *ngFor="let v of vehicles" [class.ev-card]="v.isEV" (click)="viewVehicleDetails(v)">
       <div class="card-glow"></div>
       <div class="card-header">
         <div class="vehicle-type-icon">
           <span class="material-icons">{{ getVehicleIcon(v.vehicleType) }}</span>
         </div>
         <div class="vehicle-info">
-          <h3 class="vehicle-name">{{ v.make }} {{ v.model }}</h3>
+          <h3 class="vehicle-name" [title]="v.make + ' ' + v.model">{{ v.make }} {{ v.model }}</h3>
           <span class="vehicle-type-tag">{{ formatVehicleType(v.vehicleType) }}</span>
         </div>
-        <button class="action-btn delete" (click)="deleteVehicle(v.vehicleId!)" title="Remove Vehicle">
+        <button class="action-btn delete" (click)="deleteVehicle(v.vehicleId!); $event.stopPropagation()" title="Remove Vehicle">
           <span class="material-icons">delete_outline</span>
         </button>
       </div>
 
-      <div class="card-content">
-        <div class="detail-item">
-          <span class="label">License Plate</span>
-          <span class="value plate-text">{{ v.licensePlate }}</span>
+      <div class="card-flat-details">
+        <div class="flat-detail-item">
+          <span class="detail-label">License Plate</span>
+          <span class="detail-value plate-text">{{ v.licensePlate }}</span>
         </div>
-        <div class="detail-item">
-          <span class="label">Color</span>
-          <span class="value color-info">
-            <span class="color-dot" [style.backgroundColor]="v.color"></span>
-            {{ v.color }}
+        <div class="flat-detail-item">
+          <span class="detail-label">Vehicle Color</span>
+          <span class="detail-value color-badge">
+            <span class="material-icons color-icon" [style.color]="getValidColor(v.color)">palette</span>
           </span>
         </div>
       </div>
@@ -158,6 +162,69 @@
             {{ v.registeredAt | date:'MMM d, y' }}
           </span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vehicle Details Modal Overlay -->
+  <div class="modal-backdrop" *ngIf="selectedVehicle" (click)="closeVehicleDetails()">
+    <div class="modal-content detail-modal animate-pop" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="detail-header-title">
+          <span class="material-icons title-icon">{{ getVehicleIcon(selectedVehicle.vehicleType) }}</span>
+          <h3>Vehicle Specs</h3>
+        </div>
+        <button type="button" class="close-modal-btn" (click)="closeVehicleDetails()" aria-label="Close modal">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="vehicle-detail-body">
+        <div class="detail-hero">
+          <div class="hero-icon-circle">
+            <span class="material-icons">{{ getVehicleIcon(selectedVehicle.vehicleType) }}</span>
+          </div>
+          <h2>{{ selectedVehicle.make }} {{ selectedVehicle.model }}</h2>
+          <span class="detail-type-badge">{{ formatVehicleType(selectedVehicle.vehicleType) }}</span>
+        </div>
+
+        <div class="specs-list">
+          <div class="spec-row">
+            <span class="spec-label">License Plate</span>
+            <span class="spec-value plate-sticker">{{ selectedVehicle.licensePlate }}</span>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Vehicle Color</span>
+            <div class="spec-value color-badge-large">
+              <span class="material-icons large-color-icon" [style.color]="getValidColor(selectedVehicle.color)">palette</span>
+              <span class="color-text-modal">{{ selectedVehicle.color }}</span>
+            </div>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Power Type</span>
+            <div class="spec-value ev-badge-large" [class.is-ev]="selectedVehicle.isEV">
+              <span class="material-icons">{{ selectedVehicle.isEV ? 'bolt' : 'local_gas_station' }}</span>
+              <span>{{ selectedVehicle.isEV ? 'Electric EV' : 'Gasoline' }}</span>
+            </div>
+          </div>
+
+          <div class="spec-row">
+            <span class="spec-label">Registered On</span>
+            <span class="spec-value date-text">
+              <span class="material-icons">calendar_today</span>
+              {{ selectedVehicle.registeredAt | date:'MMM d, y, h:mm a' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeVehicleDetails()">Close</button>
+        <button type="button" class="btn-delete-modal" (click)="deleteVehicle(selectedVehicle.vehicleId!); closeVehicleDetails()">
+          <span class="material-icons">delete</span> Remove
+        </button>
       </div>
     </div>
   </div>

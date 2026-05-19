@@ -59,16 +59,37 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.user) {
-      this.form.patchValue({ 
-        fullName: this.user.fullName, 
-        email: this.user.email, 
-        phone: this.user.phone,
-        address: this.user.address || '',
-        vehiclePlate: this.user.vehiclePlate || '',
-        vehicleType: this.user.vehicleType || ''
+    const userId = this.user?.userId || this.auth.getUserIdFromToken();
+    if (userId) {
+      // First, patch with any locally cached auth state
+      if (this.user) {
+        this.patchForm(this.user);
+      }
+
+      // Then, query the database to fetch complete, up-to-date user metadata
+      this.userService.getUserById(userId).subscribe({
+        next: (freshUser) => {
+          if (freshUser) {
+            this.auth.updateLocalUser(freshUser);
+            this.patchForm(freshUser);
+          }
+        },
+        error: (err) => {
+          console.warn('Could not fetch latest user profile information:', err);
+        }
       });
     }
+  }
+
+  private patchForm(user: User): void {
+    this.form.patchValue({ 
+      fullName: user.fullName || '', 
+      email: user.email || '', 
+      phone: user.phone || '',
+      address: user.address || '',
+      vehiclePlate: user.vehiclePlate || '',
+      vehicleType: user.vehicleType || ''
+    });
   }
 
   save(): void {

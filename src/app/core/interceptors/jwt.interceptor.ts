@@ -12,7 +12,8 @@ export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, nex
 
   const isAuthRequest = req.url.includes('/auth/login') || 
                         req.url.includes('/auth/register') || 
-                        req.url.includes('/auth/refresh');
+                        req.url.includes('/auth/refresh') ||
+                        req.url.includes('/auth/logout');
 
   const authReq = (token && !isAuthRequest) ? addToken(req, token) : req;
 

@@ -1,6 +1,8 @@
-<div class="page">
-  <h1>Bookings</h1>
-  <p class="subtitle">All bookings across your lots.</p>
+<div class="page animate-in">
+  <div class="header-section">
+    <h1>Bookings Overview</h1>
+    <p class="subtitle">Monitor and manage all bookings across your parking lots.</p>
+  </div>
 
   @if (loading) {
     <div class="skeleton-list">
@@ -11,15 +13,24 @@
   } @else {
     <div class="table-wrap">
       <div class="table-head">
-        <span>ID</span><span>Plate</span><span>Status</span><span>Start</span><span>Amount</span><span>Actions</span>
+        <span>Booking ID</span>
+        <span>Vehicle Plate</span>
+        <span>Status</span>
+        <span>Start Time</span>
+        <span>Amount</span>
+        <span>Actions</span>
       </div>
       @for (b of bookings; track b.bookingId) {
         <div class="table-row">
           <span class="mono">#{{ b.bookingId }}</span>
-          <span class="plate">{{ b.vehiclePlate }}</span>
-          <span class="status-badge status-{{ b.status }}">{{ b.status }}</span>
-          <span class="date">{{ b.startTime | date:'MMM d, h:mm a' }}</span>
-          <span class="amount">{{ b.totalAmount | currency:'INR':'symbol':'1.0-0' }}</span>
+          <div>
+            <span class="plate-badge">{{ b.vehiclePlate }}</span>
+          </div>
+          <div class="status-cell">
+            <span class="status-badge status-{{ b.status }}">{{ b.status }}</span>
+          </div>
+          <span class="date">{{ b.startTime | date:'MMM dd, yyyy • h:mm a' }}</span>
+          <span class="amount">{{ b.totalAmount | currency:'INR':'symbol':'1.0-2' }}</span>
           <div class="row-actions">
             @if (b.status === 'RESERVED') {
               <button (click)="checkIn(b)" class="btn-xs">Check in</button>
@@ -31,7 +42,10 @@
         </div>
       }
       @if (bookings.length === 0) {
-        <div class="empty">No bookings found.</div>
+        <div class="empty-state">
+          <span class="material-icons">event_note</span>
+          <p>No bookings found across your lots.</p>
+        </div>
       }
     </div>
   }

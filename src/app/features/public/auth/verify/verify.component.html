@@ -1,0 +1,84 @@
+<div class="auth-layout">
+  <div class="auth-panel hidden-mobile">
+    <div class="auth-brand">
+      <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+    </div>
+    <div class="auth-tagline">
+      <h2>Your journey starts with a verified account.</h2>
+      <p>Secure authentication, real-time slot bookings, and seamless parking experience.</p>
+    </div>
+    <span class="auth-copy">© 2026 ParkEase. Find. Reserve. Park.</span>
+  </div>
+
+  <div class="auth-form-area">
+    <div class="auth-form-card">
+      <div class="auth-brand-mobile">
+        <div class="logo"><span class="logo-icon">P</span><span>ParkEase</span></div>
+      </div>
+
+      <!-- STATUS: VERIFYING -->
+      <ng-container *ngIf="status() === 'verifying'">
+        <div class="status-container">
+          <div class="spinner-large"></div>
+          <h1>Verifying account</h1>
+          <p class="subtitle">Please wait while we activate your account and complete the security checks...</p>
+        </div>
+      </ng-container>
+
+      <!-- STATUS: SUCCESS -->
+      <ng-container *ngIf="status() === 'success'">
+        <div class="status-container">
+          <div class="success-icon-badge">
+            <span class="material-icons">check_circle</span>
+          </div>
+          <h1>Account Activated!</h1>
+          <p class="subtitle">Congratulations! Your email has been successfully verified. Your account is now active and ready to go.</p>
+          <button routerLink="/login" class="btn-primary">Go to Sign In</button>
+        </div>
+      </ng-container>
+
+      <!-- STATUS: ERROR -->
+      <ng-container *ngIf="status() === 'error'">
+        <div class="status-container">
+          <div class="error-icon-badge">
+            <span class="material-icons">error</span>
+          </div>
+          <h1>Verification Failed</h1>
+          <p class="subtitle">{{ error() }}</p>
+          <button (click)="status.set('idle')" class="btn-secondary">Try Manual Input</button>
+          <p class="switch-auth">
+            Already verified? <a routerLink="/login">Sign in</a>
+          </p>
+        </div>
+      </ng-container>
+
+      <!-- STATUS: IDLE (MANUAL INPUT) -->
+      <ng-container *ngIf="status() === 'idle'">
+        <h1>Verify email</h1>
+        <p class="subtitle">Please enter the verification code sent to your email to activate your account.</p>
+
+        <form [formGroup]="form" (ngSubmit)="submitManual()" class="form">
+          <div class="field">
+            <label>Verification Token / Code</label>
+            <input formControlName="token" type="text" placeholder="Enter code (e.g. f93b7c)" autocomplete="off">
+            <span class="err" *ngIf="form.controls.token.touched && form.controls.token.errors?.['required']">
+              Verification code is required
+            </span>
+            <span class="err" *ngIf="form.controls.token.touched && form.controls.token.errors?.['minlength']">
+              Code must be at least 4 characters long
+            </span>
+          </div>
+
+          <button type="submit" class="btn-primary" [disabled]="submitting()">
+            Verify Account
+          </button>
+        </form>
+
+        <p class="switch-auth">
+          Need help? <a routerLink="/login">Back to Sign In</a>
+        </p>
+      </ng-container>
+
+    </div>
+  </div>
+</div>

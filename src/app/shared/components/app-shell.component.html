@@ -6,7 +6,7 @@
         <div class="logo-box">P</div>
         <span class="logo-text">ParkEase</span>
       </div>
-      <button class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close menu">
+      <button type="button" class="close-sidebar-btn" (click)="closeSidebar()" aria-label="Close menu">
         <span class="material-icons">close</span>
       </button>
     </div>
@@ -27,7 +27,7 @@
       <div class="user-pill">
         <div class="user-avatar">
           <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="User avatar">
-          <span *ngIf="!user?.profilePicUrl">{{ initials }}</span>
+          <span *ngIf="!user?.profilePicUrl" class="material-icons">person</span>
         </div>
         <div class="user-meta">
           <span class="user-name">{{ user?.fullName }}</span>
@@ -47,15 +47,12 @@
     <!-- Header -->
     <header class="navbar">
       <div class="navbar-left">
-        <button class="mobile-menu-btn" (click)="openSidebar()" aria-label="Open menu" [attr.aria-expanded]="sidebarOpen">
-          <span class="material-icons">menu</span>
-        </button>
-        <!-- Logo shown ONLY on mobile when sidebar is hidden -->
-        <div class="mobile-logo">
+        <!-- Clickable Logo Badge that toggles the sidebar drawer -->
+        <button type="button" class="navbar-logo-btn" (click)="openSidebar()" aria-label="Open navigation menu">
           <div class="logo-box-sm">P</div>
           <span class="logo-text-sm">ParkEase</span>
-        </div>
-        <h2 class="page-title-hidden">Dashboard</h2>
+        </button>
+        <h2 class="navbar-page-title">Dashboard</h2>
       </div>
 
       <div class="navbar-right">
@@ -67,7 +64,7 @@
           <span class="nav-user-name">{{ user?.fullName }}</span>
           <div class="nav-avatar">
             <img *ngIf="user?.profilePicUrl" [src]="user?.profilePicUrl" alt="User avatar">
-            <span *ngIf="!user?.profilePicUrl">{{ initials }}</span>
+            <span *ngIf="!user?.profilePicUrl" class="material-icons">person</span>
           </div>
         </div>
       </div>
